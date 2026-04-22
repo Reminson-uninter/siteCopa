@@ -11,54 +11,47 @@
         h1 { text-align: center; margin-bottom: 8px; color: #1a3a1a; font-size: 24px; }
         .subtitle { text-align: center; color: #555; margin-bottom: 20px; font-size: 14px; }
         
-        /* Box de Usuário */
         .user-box { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; }
+        input { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
         input:focus { border-color: #198754; }
         input:disabled { background: #f9f9f9; color: #999; }
 
-        /* Cartão de Jogo */
         .dia { background: #fff; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-        .dia-header { background: #198754; color: #fff; padding: 12px 16px; font-weight: 600; text-transform: capitalize; font-size: 14px; }
+        .dia-header { background: #198754; color: #fff; padding: 12px 16px; font-weight: 600; font-size: 14px; text-transform: capitalize; }
         .jogo { padding: 16px; border-bottom: 1px solid #eee; }
         
         .header-jogo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .info { display: flex; gap: 12px; font-size: 11px; color: #888; }
+        .info { display: flex; gap: 12px; font-size: 11px; color: #888; flex-wrap: wrap; }
+        .grupo-badge { background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #495057; }
         
         .palpite { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
-        .btn { padding: 12px 4px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 13px; min-height: 45px; }
+        .btn { padding: 12px 4px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; min-height: 45px; transition: 0.2s; }
         .btn.active { background: #198754 !important; color: #fff !important; border-color: #198754 !important; }
         .btn:disabled { cursor: not-allowed; opacity: 0.7; }
         
         .btn-limpar { background: #fff0f0; color: #dc3545; border: 1px solid #f8d7da; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 10px; font-weight: bold; }
-
-        .acertadores-box { margin-top: 10px; padding: 10px; background: #d1e7dd; border-radius: 8px; font-size: 12px; color: #0f5132; display: none; border-left: 4px solid #198754; }
-        .acertadores-box.ativo { display: block; }
         .votos-resumo { font-size: 10px; color: #999; margin-top: 10px; display: flex; justify-content: space-around; background: #fcfcfc; padding: 6px; border-radius: 4px; border: 1px solid #f0f0f0; }
 
         .ranking-box { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 120px; }
+        .ranking-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         
-        /* Rodapé e Ações Fixas */
         footer { text-align: center; padding: 25px; color: #888; font-size: 13px; background: #fff; margin-top: auto; border-top: 1px solid #eee; }
         .admin-badge { background: #0d6efd; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
 
         .acoes-fixas { position: sticky; bottom: 0; background: #f0f2f5; padding: 12px 0; display: flex; gap: 8px; z-index: 1000; border-top: 1px solid #ddd; }
-        .btn-acao { border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .btn-enviar { flex: 2; background: #198754; color: #fff; box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3); }
-        .btn-imprimir { flex: 1; background: #0d6efd; color: #fff; }
-        .btn-reset { flex: 2; background: #fff; color: #333; border: 1px solid #ddd; }
+        .btn-acao { border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.3s; flex: 1; height: 50px; }
+        .btn-enviar { background: #198754; color: #fff; box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3); }
+        .btn-imprimir { background: #0d6efd; color: #fff; }
+        .btn-reset { background: #fff; color: #333; border: 1px solid #ddd; }
 
-        @media print {
-            .acoes-fixas, .btn-limpar, .user-box input { display: none !important; }
-            body { background: white; }
-        }
+        @media print { .acoes-fixas, .btn-limpar, .user-box input { display: none !important; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>⚽ Bolão Copa 2026</h1>
-    <div class="subtitle">Canadá, México e EUA · Fase de Grupos</div>
+    <div class="subtitle">Tabela Oficial FIFA - 1ª e 2ª Rodada</div>
 
     <div class="user-box">
         <label><strong>Seu Nome <span id="admin-label"></span>:</strong></label>
@@ -68,28 +61,22 @@
     <div id="jogos"></div>
 
     <div class="ranking-box">
-        <h3>📊 Apostadores Ativos</h3>
+        <h3>📊 Participantes</h3>
         <div id="lista-usuarios">...</div>
     </div>
 
     <div class="acoes-fixas">
         <button id="btnEnviar" class="btn-acao btn-enviar" onclick="enviarPalpites()">🚀 Enviar Palpites</button>
-        <button id="btnNovo" class="btn-acao btn-reset" onclick="novoPalpite()" style="display:none;">🔄 Novo Envio</button>
+        <button id="btnNovo" class="btn-acao btn-reset" onclick="novoPalpite()" style="display:none;">🔄 Novo Palpite</button>
         <button class="btn-acao btn-imprimir" onclick="window.print()">📥 Imprimir</button>
     </div>
 </div>
 
-<footer>
-    Desenvolvido por <strong>Reminson</strong><br>
-    Administrador do Bolão: <strong>Paulinho</strong>
-</footer>
+<footer>Desenvolvido por <strong>Reminson</strong><br>Admin: <strong>Paulinho</strong></footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { 
-    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, 
-    query, where, getDocs, deleteDoc, doc 
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDhlW_35WxxH_PPDIAzn6NXhGYQbZX9-00",
@@ -102,9 +89,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// Resultados simulados para teste (Oitavas/Resultados Reais no futuro)
-const RESULTADOS_API = { 0: "A" };
 
 const JOGOS = [
     // --- 1ª RODADA ---
@@ -152,23 +136,22 @@ let enviado = localStorage.getItem('bolao_enviado') === 'true';
 
 window.checarAdmin = () => {
     const nome = document.getElementById('usuario').value;
-    const label = document.getElementById('admin-label');
+    document.getElementById('admin-label').innerHTML = nome.toLowerCase() === "paulinho" ? '<span class="admin-badge">ADMIN</span>' : '';
     localStorage.setItem('bolao_user', nome);
-    label.innerHTML = nome.toLowerCase() === "paulinho" ? '<span class="admin-badge">ADMIN</span>' : '';
 };
 
-window.votarLocal = (jogoId, opcao) => {
+window.votarLocal = (id, esc) => {
     if (enviado) return;
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-    escolhas[jogoId] = opcao;
+    escolhas[id] = esc;
     localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
     renderizar();
 };
 
-window.limparPalpite = (jogoId) => {
+window.limparPalpite = (id) => {
     if (enviado) return;
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-    delete escolhas[jogoId];
+    delete escolhas[id];
     localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
     renderizar();
 };
@@ -176,25 +159,22 @@ window.limparPalpite = (jogoId) => {
 window.enviarPalpites = async () => {
     const nome = document.getElementById('usuario').value;
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-    if (!nome) return alert("Digite seu nome!");
-    if (Object.keys(escolhas).length === 0) return alert("Escolha ao menos um jogo!");
-    if (!confirm("Confirmar envio? Seus palpites não poderão ser alterados.")) return;
+    if (!nome || Object.keys(escolhas).length === 0) return alert("Preencha seu nome e faça ao menos um palpite!");
+    if (!confirm("Confirmar envio? Seus palpites serão travados.")) return;
 
     try {
         for (const [id, esc] of Object.entries(escolhas)) {
-            await addDoc(collection(db, "palpites"), {
-                jogoId: parseInt(id), escolha: esc, usuario: nome, timestamp: serverTimestamp()
-            });
+            await addDoc(collection(db, "palpites"), { jogoId: parseInt(id), escolha: esc, usuario: nome, timestamp: serverTimestamp() });
         }
         enviado = true;
         localStorage.setItem('bolao_enviado', 'true');
         renderizar();
-        alert("✅ Enviado com sucesso!");
+        alert("Enviado com sucesso!");
     } catch (e) { alert("Erro ao salvar."); }
 };
 
 window.novoPalpite = () => {
-    if (confirm("Resetar tela para um novo palpite?")) {
+    if (confirm("Deseja abrir espaço para um novo palpite?")) {
         localStorage.removeItem('minhas_escolhas');
         localStorage.removeItem('bolao_enviado');
         enviado = false;
@@ -221,49 +201,45 @@ window.renderizar = () => {
             <div class="dia-header">${new Date(data+'T12:00:00').toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long'})}</div>
             ${porDia[data].map(j => {
                 const sel = escolhasLocais[j.id];
-                const temRes = RESULTADOS_API[j.id] !== undefined;
                 return `
                 <div class="jogo">
                     <div class="header-jogo">
-                        <div class="info"><span>🕒 ${j.hora}</span><span>📍 ${j.local}</span></div>
+                        <div class="info">
+                            <span class="grupo-badge">GRP ${j.grupo}</span>
+                            <span>🕒 ${j.hora} BRT</span>
+                            <span>📍 ${j.local}</span>
+                        </div>
                         ${sel && !enviado ? `<button class="btn-limpar" onclick="limparPalpite(${j.id})">🗑️ Limpar</button>` : ''}
                     </div>
                     <div class="palpite">
-                        <button class="btn ${sel === 'A' ? 'active' : ''}" ${enviado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'A')">${j.timeA}</button>
+                        <button class="btn ${sel === 'A' ? 'active' : ''}" ${enviado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'A')">${j.tA}</button>
                         <button class="btn ${sel === 'E' ? 'active' : ''}" ${enviado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'E')">Empate</button>
-                        <button class="btn ${sel === 'B' ? 'active' : ''}" ${enviado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'B')">${j.timeB}</button>
+                        <button class="btn ${sel === 'B' ? 'active' : ''}" ${enviado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'B')">${j.tB}</button>
                     </div>
-                    <div class="acertadores-box" id="acertadores-${j.id}">🎯 Acertadores: ...</div>
-                    <div class="votos-resumo" id="res-${j.id}">Processando...</div>
+                    <div class="votos-resumo" id="res-${j.id}">Calculando...</div>
                 </div>`;
             }).join('')}
         </div>
     `).join('');
 };
 
-onSnapshot(collection(db, "palpites"), (snapshot) => {
-    const stats = {}; const users = {}; const winners = {};
-    snapshot.forEach(doc => {
+onSnapshot(collection(db, "palpites"), (snap) => {
+    const stats = {}; const users = {};
+    snap.forEach(doc => {
         const p = doc.data();
         if (!stats[p.jogoId]) stats[p.jogoId] = { A: 0, B: 0, E: 0 };
         stats[p.jogoId][p.escolha]++;
         users[p.usuario] = (users[p.usuario] || 0) + 1;
-        if (RESULTADOS_API[p.jogoId] === p.escolha) {
-            if (!winners[p.jogoId]) winners[p.jogoId] = [];
-            if (!winners[p.jogoId].includes(p.usuario)) winners[p.jogoId].push(p.usuario);
-        }
     });
 
     Object.keys(stats).forEach(id => {
         const r = stats[id]; const total = r.A + r.B + r.E;
         const el = document.getElementById(`res-${id}`);
-        if (el) el.innerHTML = `<span>${Math.round((r.A/total)*100)}% Casa</span><span>${Math.round((r.E/total)*100)}% Empate</span><span>${Math.round((r.B/total)*100)}% Fora</span>`;
-        const acEl = document.getElementById(`acertadores-${id}`);
-        if (acEl && winners[id]) { acEl.classList.add('ativo'); acEl.innerHTML = `🎯 Acertadores: <strong>${winners[id].join(', ')}</strong>`; }
+        if (el) el.innerHTML = `<span>${Math.round((r.A/total)*100)}% ${JOGOS.find(j=>j.id==id).tA}</span><span>${Math.round((r.E/total)*100)}% Empate</span><span>${Math.round((r.B/total)*100)}% ${JOGOS.find(j=>j.id==id).tB}</span>`;
     });
 
-    document.getElementById('lista-usuarios').innerHTML = Object.entries(users).map(([nome, qtd]) => `
-        <div class="ranking-item"><span>👤 <strong>${nome}</strong></span><span class="admin-badge" style="background:#eee;color:#666">${qtd} palpites</span></div>
+    document.getElementById('lista-usuarios').innerHTML = Object.entries(users).map(([n, q]) => `
+        <div class="ranking-item"><span>👤 <strong>${n}</strong></span><span class="admin-badge" style="background:#eee;color:#666">${q} jogos</span></div>
     `).join('');
 });
 
