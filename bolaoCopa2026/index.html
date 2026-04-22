@@ -13,40 +13,42 @@
         
         .user-box { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         input, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
-        input:focus { border-color: #198754; }
-
+        
         .admin-section { background: #212529; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: none; }
-        .btn-admin { background: #ffc107; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-admin { background: #ffc107; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; color: #000; }
 
         .dia { background: #fff; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
         .dia-header { background: #198754; color: #fff; padding: 12px 16px; font-weight: 600; font-size: 14px; text-transform: capitalize; }
         .jogo { padding: 16px; border-bottom: 1px solid #eee; position: relative; }
-        .jogo.bloqueado { background: #f8f9fa; opacity: 0.8; }
+        .jogo.bloqueado { background: #f9f9f9; }
         
         .tag-status { position: absolute; top: 10px; right: 16px; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
         .aberto { background: #e3f2fd; color: #0d6efd; }
         .fechado { background: #ffebee; color: #dc3545; }
 
         .header-jogo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .info { display: flex; gap: 12px; font-size: 11px; color: #888; flex-wrap: wrap; }
+        .info { display: flex; gap: 12px; font-size: 11px; color: #888; }
         
         .palpite { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
         .btn { padding: 12px 4px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; min-height: 45px; transition: 0.2s; }
         .btn.active { background: #198754 !important; color: #fff !important; border-color: #198754 !important; }
-        .btn:disabled { cursor: not-allowed; color: #999; }
+        .btn:disabled { cursor: not-allowed; opacity: 0.7; }
         
-        .resultado-oficial { background: #fff3cd; color: #856404; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center; font-weight: bold; font-size: 12px; border: 1px solid #ffeeba; }
+        .resultado-oficial { background: #fff3cd; color: #856404; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center; font-weight: bold; font-size: 11px; border: 1px solid #ffeeba; }
 
         .box-info { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .relatorio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; }
-        .relatorio-card { background: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; cursor: pointer; }
+        .relatorio-card { background: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; cursor: pointer; font-size: 12px; }
         
-        .ranking-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        .pontos { background: #198754; color: white; padding: 2px 10px; border-radius: 20px; font-weight: bold; }
+        .ranking-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .pontos { background: #198754; color: white; padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
 
-        .acoes-fixas { position: sticky; bottom: 0; background: #f0f2f5; padding: 12px 0; display: flex; gap: 8px; z-index: 1000; border-top: 1px solid #ddd; }
+        .acoes-fixas { position: sticky; bottom: 0; background: #f0f2f5; padding: 12px 10px; display: flex; gap: 8px; z-index: 1000; border-top: 1px solid #ddd; }
         .btn-acao { border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.3s; flex: 1; height: 50px; }
         .btn-enviar { background: #198754; color: #fff; }
+        .btn-enviar:disabled { background: #aaa; }
+
+        .admin-badge { background: #0d6efd; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
 
         @media print { .acoes-fixas, .user-box input { display: none !important; } }
     </style>
@@ -59,30 +61,31 @@
 
     <div class="user-box">
         <label><strong>Seu Nome <span id="admin-label"></span>:</strong></label>
-        <input type="text" id="usuario" placeholder="Digite seu nome completo" oninput="checarAdmin()">
+        <input type="text" id="usuario" placeholder="Digite seu nome para começar" oninput="checarAdmin()">
     </div>
 
     <div id="area-admin" class="admin-section">
         <h3>🛠 Painel Admin (Resultados Oficiais)</h3>
+        <p style="font-size: 11px; margin-bottom: 5px;">Selecione o jogo e quem venceu na vida real:</p>
         <select id="adm-jogo-id"></select>
         <select id="adm-vencedor">
-            <option value="A">Time A Vence</option>
+            <option value="A">Time A (Esquerda) venceu</option>
             <option value="E">Empate</option>
-            <option value="B">Time B Vence</option>
+            <option value="B">Time B (Direita) venceu</option>
         </select>
-        <button class="btn-admin" onclick="salvarResultadoOficial()">Registrar Resultado Oficial</button>
+        <button class="btn-admin" onclick="salvarResultadoOficial()">Salvar Resultado Real</button>
     </div>
 
     <div id="jogos"></div>
 
     <div class="box-info">
-        <h3>📊 Relatório Geral (Clique para ver quem votou)</h3>
+        <h3>📊 Relatório Geral de Escolhas</h3>
         <div id="relatorio-votos" class="relatorio-grid">Carregando dados...</div>
     </div>
 
     <div class="box-info" style="margin-bottom: 120px;">
-        <h3>🏆 Ranking e Participantes</h3>
-        <div id="lista-usuarios">...</div>
+        <h3>🏆 Ranking de Pontos</h3>
+        <div id="lista-usuarios">Aguardando votos...</div>
     </div>
 
     <div class="acoes-fixas">
@@ -109,7 +112,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// LISTA COMPLETA DE JOGOS PREVISTOS
 const JOGOS = [
     { id: 1, grupo: "A", tA: "México", tB: "África do Sul", data: "2026-06-11", hora: "16:00" },
     { id: 2, grupo: "A", tA: "Coréia do Sul", tB: "Rep. Tcheca", data: "2026-06-11", hora: "23:00" },
@@ -153,19 +155,25 @@ let enviado = localStorage.getItem('bolao_enviado') === 'true';
 let resultadosOficiais = {};
 
 const jogoComecou = (data, hora) => {
-    return new Date() > new Date(`${data}T${hora}:00`);
+    const agora = new Date();
+    const dataJogo = new Date(`${data}T${hora}:00`);
+    return agora >= dataJogo;
 };
 
 window.checarAdmin = () => {
-    const nome = document.getElementById('usuario').value.toLowerCase();
+    const nome = document.getElementById('usuario').value.trim().toLowerCase();
     const isAdmin = nome === "paulinho";
     document.getElementById('admin-label').innerHTML = isAdmin ? '<span class="admin-badge">ADMIN</span>' : '';
     document.getElementById('area-admin').style.display = isAdmin ? 'block' : 'none';
 };
 
 window.votarLocal = (id, esc) => {
+    if (enviado) return;
     const jogo = JOGOS.find(j => j.id === id);
-    if (enviado || jogoComecou(jogo.data, jogo.hora)) return;
+    if (jogoComecou(jogo.data, jogo.hora)) {
+        alert("Este jogo já começou ou encerrou!");
+        return;
+    }
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
     escolhas[id] = esc;
     localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
@@ -175,33 +183,50 @@ window.votarLocal = (id, esc) => {
 window.enviarPalpites = async () => {
     const nome = document.getElementById('usuario').value.trim();
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-    if (!nome || Object.keys(escolhas).length === 0) return alert("Preencha seu nome e palpites!");
-    if (!confirm("Deseja travar seus palpites? Não poderá mudar depois.")) return;
+    
+    if (!nome) return alert("Por favor, digite seu nome!");
+    if (Object.keys(escolhas).length === 0) return alert("Marque pelo menos um palpite!");
+    if (!confirm("Ao enviar, seus palpites serão TRAVADOS. Confirmar?")) return;
 
     try {
+        const btn = document.getElementById('btnEnviar');
+        btn.innerText = "Enviando...";
+        btn.disabled = true;
+
         for (const [id, esc] of Object.entries(escolhas)) {
             const jogo = JOGOS.find(j => j.id == id);
+            // Só envia para o banco se o jogo ainda não tiver começado
             if(!jogoComecou(jogo.data, jogo.hora)) {
-                await addDoc(collection(db, "palpites"), { jogoId: parseInt(id), escolha: esc, usuario: nome });
+                await addDoc(collection(db, "palpites"), { 
+                    jogoId: parseInt(id), 
+                    escolha: esc, 
+                    usuario: nome,
+                    criadoEm: serverTimestamp() 
+                });
             }
         }
         enviado = true;
         localStorage.setItem('bolao_enviado', 'true');
         localStorage.setItem('bolao_user', nome);
         renderizar();
-        alert("Palpites travados!");
-    } catch (e) { alert("Erro ao salvar."); }
+        alert("Sucesso! Seus palpites foram salvos.");
+    } catch (e) { 
+        alert("Erro ao salvar. Verifique sua internet."); 
+        document.getElementById('btnEnviar').disabled = false;
+    }
 };
 
 window.salvarResultadoOficial = async () => {
     const id = document.getElementById('adm-jogo-id').value;
     const res = document.getElementById('adm-vencedor').value;
-    await setDoc(doc(db, "resultados", id), { resultado: res });
-    alert("Placar oficial registrado!");
+    try {
+        await setDoc(doc(db, "resultados", id), { resultado: res });
+        alert("Resultado oficial atualizado!");
+    } catch(e) { alert("Erro de permissão."); }
 };
 
 window.mostrarQuemVotou = (opcao, lista) => {
-    alert(`Quem votou em "${opcao}":\n- ${[...new Set(lista)].join('\n- ')}`);
+    alert(`Palpites para ${opcao}:\n- ${[...new Set(lista)].join('\n- ')}`);
 };
 
 window.renderizar = () => {
@@ -210,6 +235,7 @@ window.renderizar = () => {
     const escolhasLocais = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
     
     document.getElementById('btnEnviar').disabled = enviado;
+    if (enviado) document.getElementById('btnEnviar').innerText = "✅ Palpites Enviados";
     document.getElementById('usuario').disabled = enviado;
 
     JOGOS.forEach(j => {
@@ -226,7 +252,7 @@ window.renderizar = () => {
                 const oficial = resultadosOficiais[j.id];
                 return `
                 <div class="jogo ${bloqueado ? 'bloqueado' : ''}">
-                    <span class="tag-status ${bloqueado ? 'fechado' : 'aberto'}">${bloqueado ? '🚫 Bloqueado' : '✅ Aberto'}</span>
+                    <span class="tag-status ${bloqueado ? 'fechado' : 'aberto'}">${bloqueado ? '🚫 Encerrado' : '✅ Disponível'}</span>
                     <div class="header-jogo">
                         <div class="info"><span>GRP ${j.grupo}</span> | <span>🕒 ${j.hora}</span></div>
                     </div>
@@ -235,14 +261,16 @@ window.renderizar = () => {
                         <button class="btn ${sel === 'E' ? 'active' : ''}" ${(enviado || bloqueado) ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'E')">Empate</button>
                         <button class="btn ${sel === 'B' ? 'active' : ''}" ${(enviado || bloqueado) ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'B')">${j.tB}</button>
                     </div>
-                    ${oficial ? `<div class="resultado-oficial">Vencedor Oficial: ${oficial === 'E' ? 'Empate' : (oficial === 'A' ? j.tA : j.tB)}</div>` : ''}
+                    ${oficial ? `<div class="resultado-oficial">Resultado Real: ${oficial === 'E' ? 'Empate' : (oficial === 'A' ? j.tA : j.tB)}</div>` : ''}
                 </div>`;
             }).join('')}
         </div>
     `).join('');
 
     const admSelect = document.getElementById('adm-jogo-id');
-    if(admSelect.options.length === 0) admSelect.innerHTML = JOGOS.map(j => `<option value="${j.id}">${j.tA} x ${j.tB}</option>`).join('');
+    if(admSelect && admSelect.options.length === 0) {
+        admSelect.innerHTML = JOGOS.map(j => `<option value="${j.id}">${j.tA} x ${j.tB}</option>`).join('');
+    }
 };
 
 onSnapshot(collection(db, "resultados"), (snap) => {
@@ -254,8 +282,8 @@ onSnapshot(collection(db, "palpites"), (snap) => {
     const quemVotouEmQue = {}; 
     const ranking = {};
 
-    snap.forEach(doc => {
-        const p = doc.data();
+    snap.forEach(docSnap => {
+        const p = docSnap.data();
         const jogo = JOGOS.find(j => j.id === p.jogoId);
         if (!jogo) return;
 
@@ -264,13 +292,15 @@ onSnapshot(collection(db, "palpites"), (snap) => {
         quemVotouEmQue[label].push(p.usuario);
 
         if(!ranking[p.usuario]) ranking[p.usuario] = 0;
-        if(resultadosOficiais[p.jogoId] === p.escolha) ranking[p.usuario] += 3;
+        if(resultadosOficiais[p.jogoId] && resultadosOficiais[p.jogoId] === p.escolha) {
+            ranking[p.usuario] += 3;
+        }
     });
 
     const relatorioEl = document.getElementById('relatorio-votos');
     relatorioEl.innerHTML = Object.entries(quemVotouEmQue).sort((a,b) => b[1].length - a[1].length).map(([op, lista]) => `
         <div class="relatorio-card" onclick="mostrarQuemVotou('${op}', ${JSON.stringify(lista).replace(/"/g, '&quot;')})">
-            <strong>${op}</strong><span>${lista.length} votos</span>
+            <strong>${op}</strong><br><span>${lista.length} palpites</span>
         </div>`).join('');
 
     const rankingEl = document.getElementById('lista-usuarios');
@@ -278,7 +308,7 @@ onSnapshot(collection(db, "palpites"), (snap) => {
         <div class="ranking-item">
             <strong>👤 ${nome}</strong>
             <span class="pontos">${pts} pts</span>
-        </div>`).join('') || "Nenhum ponto ainda.";
+        </div>`).join('') || "Aguardando resultados oficiais...";
 });
 
 document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
