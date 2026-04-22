@@ -20,16 +20,31 @@
             overflow-x: hidden; 
         }
 
-        /* ANIMAÇÃO DE COPA */
+        /* --- ANIMAÇÕES DE COPA --- */
         .copa-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.5; }
-        @keyframes confetti {
+        
+        @keyframes fall {
             0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
-        .confetti { position: absolute; width: 8px; height: 8px; animation: confetti 5s linear infinite; border-radius: 2px; }
+        
+        .confetti { 
+            position: absolute; 
+            width: 8px; 
+            height: 8px; 
+            animation: fall 4s linear infinite; 
+            border-radius: 2px;
+        }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dia, .ranking-item { animation: fadeIn 0.4s ease-out forwards; }
+
+        /* --- LAYOUT --- */
         .container { width: 100%; max-width: 800px; margin: 0 auto; flex: 1; }
-
         h1 { text-align: center; margin: 15px 0 5px; color: #1a3a1a; font-size: clamp(22px, 7vw, 32px); }
         .subtitle { text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 14px; font-weight: bold; }
 
@@ -41,7 +56,9 @@
         input { 
             width: 100%; padding: 14px; margin-top: 8px; border: 1px solid #ddd; 
             border-radius: 8px; font-size: 16px; outline: none; appearance: none;
+            transition: border-color 0.3s;
         }
+        input:focus { border-color: var(--primary); }
 
         /* ADMIN SECTION */
         .admin-section { background: #212529; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: none; }
@@ -58,24 +75,24 @@
         .aberto { background: #e3f2fd; color: #0d6efd; }
         .fechado { background: #ffebee; color: #dc3545; }
 
-        /* PALPITE RESPONSIVO */
+        /* BOTÕES DE PALPITE */
         .palpite { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
-        
         .btn { 
             padding: 15px 10px; border: 2px solid #eee; background: #fff; border-radius: 10px; 
-            cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; 
+            cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
-        .btn.active { background: var(--primary) !important; color: #fff !important; border-color: #1a3a1a !important; box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3); }
-        .btn:disabled { cursor: not-allowed; }
+        .btn:active { transform: scale(0.95); }
+        .btn.active { background: var(--primary) !important; color: #fff !important; border-color: #1a3a1a !important; transform: scale(1.02); box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3); }
+        .btn:disabled { cursor: not-allowed; opacity: 0.7; }
 
         .btn-reset { display: block; width: 100%; text-align: center; color: var(--danger); font-size: 12px; cursor: pointer; margin-top: 12px; border: none; background: none; text-decoration: underline; font-weight: bold; }
-
         .resultado-oficial { background: #fff3cd; color: #856404; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center; font-weight: bold; font-size: 12px; border: 1px solid #ffeeba; }
 
         /* RANKING */
         .box-info { background: #fff; padding: 20px; border-radius: 12px; margin: 20px 0 100px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .ranking-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
-        .ranking-item { padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+        .ranking-item { padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; transition: 0.3s; }
+        .ranking-item:hover { border-color: var(--primary); transform: translateX(5px); }
         .pontos { background: var(--secondary); color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
 
         /* ACOES FIXAS */
@@ -88,17 +105,14 @@
         .btn-enviar { background: var(--primary); color: #fff; }
         .btn-imprimir { background: var(--accent); color: #fff; }
 
-        /* MEDIA QUERIES */
         @media (min-width: 600px) {
-            .palpite { grid-template-columns: 1fr auto 1fr; }
-            .btn-reset { width: auto; margin: 10px auto 0; }
+            .palpite { grid-template-columns: 1fr 1fr 1fr; }
         }
-
+        
         @media print { 
             .acoes-fixas, .user-box, .btn-reset, .copa-bg, .tag-status { display: none !important; } 
             body { background: white; padding: 0; }
             .dia { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
-            .palpite { grid-template-columns: 1fr 1fr 1fr !important; }
         }
     </style>
 </head>
@@ -184,18 +198,21 @@ const JOGOS = [
 
 let resultadosOficiais = {};
 
-// Animação de Confetes
-const animContainer = document.getElementById('copa-anim');
-const cores = ['#198754', '#ffc107', '#009739', '#ffffff'];
-for(let i=0; i<30; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + 'vw';
-    c.style.backgroundColor = cores[Math.floor(Math.random() * cores.length)];
-    c.style.animationDuration = (Math.random() * 3 + 2) + 's';
-    c.style.animationDelay = (Math.random() * 5) + 's';
-    animContainer.appendChild(c);
+// LOGICA DE ANIMAÇÃO DE CONFETES
+function criarConfetes() {
+    const animContainer = document.getElementById('copa-anim');
+    const coresConfete = ['#198754', '#ffc107', '#009739', '#ffffff'];
+    for(let i=0; i<30; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = coresConfete[Math.floor(Math.random() * coresConfete.length)];
+        c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        c.style.animationDelay = (Math.random() * 5) + 's';
+        animContainer.appendChild(c);
+    }
 }
+criarConfetes();
 
 const jogoComecou = (data, hora) => {
     return new Date() >= new Date(`${data}T${hora}:00`);
@@ -237,7 +254,6 @@ window.enviarPalpites = async () => {
         for (const [id, esc] of Object.entries(escolhas)) {
             const jogo = JOGOS.find(j => j.id == id);
             if(!jogoComecou(jogo.data, jogo.hora)) {
-                // setDoc permite editar o mesmo palpite repetidamente
                 await setDoc(doc(db, "palpites", `${nome}_${id}`), {
                     jogoId: parseInt(id),
                     escolha: esc,
