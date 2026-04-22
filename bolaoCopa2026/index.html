@@ -6,8 +6,8 @@
     <title>Bolão Copa 2026 - MERN Style</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; padding: 16px; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
-        .container { max-width: 600px; margin: 0 auto; flex: 1; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; padding: 16px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 8px; color: #1a3a1a; }
         .subtitle { text-align: center; color: #555; margin-bottom: 20px; font-size: 14px; }
         
@@ -23,21 +23,23 @@
         
         .palpite { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
         .btn { padding: 12px 8px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 14px; }
+        .btn:hover { border-color: #198754; }
         .btn.active { background: #198754 !important; color: #fff !important; border-color: #198754 !important; }
         
         .btn-limpar { background: #ff4d4d; color: white; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-limpar:hover { background: #cc0000; }
 
-        /* Estilo para Acertadores */
-        .acertadores-box { margin-top: 10px; padding: 8px; background: #d1e7dd; border-radius: 6px; font-size: 12px; color: #0f5132; display: none; }
-        .acertadores-box.ativo { display: block; }
-
-        .ranking-box { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 40px; }
+        .votos-resumo { font-size: 11px; color: #666; margin-top: 10px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 5px; border-radius: 4px; }
         
-        footer { text-align: center; padding: 20px; color: #777; font-size: 12px; border-top: 1px solid #ddd; margin-top: 20px; }
-        .admin-badge { background: #0d6efd; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
+        .ranking-box { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 80px; }
+        .ranking-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .user-badge { background: #198754; color: white; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .user-selections { font-size: 11px; color: #666; line-height: 1.4; font-style: italic; display: block; background: #f9f9f9; padding: 5px; border-radius: 4px; }
 
-        .acoes { display: flex; gap: 10px; margin-bottom: 20px; position: sticky; bottom: 10px; z-index: 100; }
-        .btn-acao { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: #0d6efd; color: #fff; }
+        .acoes { display: flex; gap: 10px; margin-top: 20px; position: sticky; bottom: 10px; z-index: 100; }
+        .btn-acao { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .exportar { background: #0d6efd; color: #fff; }
     </style>
 </head>
 <body>
@@ -47,8 +49,8 @@
     <div class="subtitle">EUA, México e Canadá · Fase de Grupos</div>
 
     <div class="user-box">
-        <label><strong>Seu Nome <span id="admin-label"></span>:</strong></label>
-        <input type="text" id="usuario" placeholder="Ex: Reminson" oninput="checarAdmin()">
+        <label><strong>Seu Nome para o Ranking:</strong></label>
+        <input type="text" id="usuario" placeholder="Ex: Reminson" oninput="salvarNomeLocal()">
     </div>
 
     <div id="jogos"></div>
@@ -59,13 +61,9 @@
     </div>
 
     <div class="acoes">
-        <button class="btn-acao" onclick="window.print()">Imprimir Meus Palpites</button>
+        <button class="btn-acao exportar" onclick="window.print()">Imprimir Meus Palpites</button>
     </div>
 </div>
-
-<footer>
-    Desenvolvido por <strong>Reminson</strong> | Administrador: <strong>Paulinho</strong>
-</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -86,30 +84,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Simulação de resultado da API (Isso viria da sua função fetch no futuro)
-const RESULTADOS_API = {
-    0: "A", // México venceu
-    1: "E"  // Canadá empatou
-};
-
 const JOGOS = [
     { id: 0, timeA: "México", timeB: "África do Sul", data: "2026-06-11", hora: "16:00", local: "Cidade do México" },
     { id: 1, timeA: "Canadá", timeB: "Togo", data: "2026-06-11", hora: "21:00", local: "Toronto" },
-    { id: 2, timeA: "México", timeB: "Canadá", data: "2026-06-14", hora: "18:00", local: "Monterrey" }
-    // ... adicione os outros conforme necessário
+    { id: 2, timeA: "México", timeB: "Canadá", data: "2026-06-14", hora: "18:00", local: "Monterrey" },
+    { id: 3, timeA: "EUA", timeB: "Cazaquistão", data: "2026-06-12", hora: "19:00", local: "Los Angeles" },
+    { id: 4, timeA: "Coreia do Sul", timeB: "Tchéquia", data: "2026-06-12", hora: "22:00", local: "Seattle" },
+    { id: 5, timeA: "EUA", timeB: "Coreia do Sul", data: "2026-06-16", hora: "20:00", local: "San Francisco" },
+    { id: 6, timeA: "Brasil", timeB: "Escócia", data: "2026-06-13", hora: "13:00", local: "Miami" },
+    { id: 7, timeA: "Mali", timeB: "Nova Zelândia", data: "2026-06-13", hora: "16:00", local: "Orlando" },
+    { id: 8, timeA: "Brasil", timeB: "Mali", data: "2026-06-17", hora: "21:00", local: "Houston" },
+    { id: 9, timeA: "Argentina", timeB: "Honduras", data: "2026-06-14", hora: "12:00", local: "Dallas" },
+    { id: 10, timeA: "França", timeB: "Uzbequistão", data: "2026-06-14", hora: "15:00", local: "Atlanta" }
 ];
 
-window.checarAdmin = () => {
-    const nome = document.getElementById('usuario').value;
-    const label = document.getElementById('admin-label');
-    localStorage.setItem('bolao_user', nome);
-    
-    if(nome.toLowerCase() === "paulinho") {
-        label.innerHTML = '<span class="admin-badge">ADMIN</span>';
-    } else {
-        label.innerHTML = '';
-    }
-};
+document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
+window.salvarNomeLocal = () => localStorage.setItem('bolao_user', document.getElementById('usuario').value);
+
+function formatarData(dataStr) {
+    const d = new Date(dataStr + 'T12:00:00');
+    return d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+}
 
 window.renderizar = () => {
     const container = document.getElementById('jogos');
@@ -123,10 +118,9 @@ window.renderizar = () => {
 
     container.innerHTML = Object.keys(porDia).sort().map(data => `
         <div class="dia">
-            <div class="dia-header">${new Date(data+'T12:00:00').toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long'})}</div>
+            <div class="dia-header">${formatarData(data)}</div>
             ${porDia[data].map(j => {
                 const sel = escolhasLocais[j.id];
-                const temResultado = RESULTADOS_API[j.id] !== undefined;
                 return `
                 <div class="jogo">
                     <div class="header-jogo">
@@ -138,9 +132,6 @@ window.renderizar = () => {
                         <button class="btn btn-empate ${sel === 'E' ? 'active' : ''}" onclick="votar(${j.id}, 'E')">Empate</button>
                         <button class="btn ${sel === 'B' ? 'active' : ''}" onclick="votar(${j.id}, 'B')">${j.timeB}</button>
                     </div>
-                    <div class="acertadores-box ${temResultado ? 'ativo' : ''}" id="acertadores-${j.id}">
-                        🎯 Acertadores: Carregando...
-                    </div>
                     <div class="votos-resumo" id="res-${j.id}">Carregando...</div>
                 </div>`;
             }).join('')}
@@ -148,44 +139,52 @@ window.renderizar = () => {
     `).join('');
 };
 
-// ... (votar e limparPalpite permanecem as mesmas das versões anteriores)
 window.votar = async (jogoId, opcao) => {
     const nome = document.getElementById('usuario').value;
-    if (!nome) return alert("Digite seu nome!");
+    if (!nome) return alert("Por favor, digite seu nome primeiro!");
+
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
     escolhas[jogoId] = opcao;
     localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
     renderizar();
-    await addDoc(collection(db, "palpites"), { jogoId, escolha: opcao, usuario: nome, timestamp: serverTimestamp() });
+
+    try {
+        await addDoc(collection(db, "palpites"), {
+            jogoId, escolha: opcao, usuario: nome, timestamp: serverTimestamp()
+        });
+    } catch (e) { console.error(e); }
 };
 
 window.limparPalpite = async (jogoId) => {
     const nome = document.getElementById('usuario').value;
-    if (!confirm("Remover palpite?")) return;
+    if (!nome) return alert("Digite seu nome para validar a exclusão!");
+
+    if (!confirm("Remover seu palpite deste jogo?")) return;
+
+    // Atualiza interface local
     const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
     delete escolhas[jogoId];
     localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
     renderizar();
-    const q = query(collection(db, "palpites"), where("usuario", "==", nome), where("jogoId", "==", jogoId));
-    const qs = await getDocs(q);
-    qs.forEach(async (d) => await deleteDoc(doc(db, "palpites", d.id)));
+
+    // Remove do Firebase
+    try {
+        const q = query(collection(db, "palpites"), where("usuario", "==", nome), where("jogoId", "==", jogoId));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (documento) => {
+            await deleteDoc(doc(db, "palpites", documento.id));
+        });
+    } catch (e) { console.error("Erro ao limpar:", e); }
 };
 
 onSnapshot(collection(db, "palpites"), (snapshot) => {
     const stats = {};
     const users = {};
-    const acertadoresPorJogo = {};
 
     snapshot.forEach(doc => {
         const p = doc.data();
         if (!stats[p.jogoId]) stats[p.jogoId] = { A: 0, B: 0, E: 0 };
         stats[p.jogoId][p.escolha]++;
-
-        // Lógica de Acertadores (Só processa se a API já tiver o resultado)
-        if (RESULTADOS_API[p.jogoId] === p.escolha) {
-            if (!acertadoresPorJogo[p.jogoId]) acertadoresPorJogo[p.jogoId] = [];
-            if (!acertadoresPorJogo[p.jogoId].includes(p.usuario)) acertadoresPorJogo[p.jogoId].push(p.usuario);
-        }
 
         if (!users[p.usuario]) users[p.usuario] = {};
         const jogo = JOGOS.find(j => j.id === p.jogoId);
@@ -195,29 +194,26 @@ onSnapshot(collection(db, "palpites"), (snapshot) => {
         }
     });
 
-    // Atualiza Acertadores na Tela
-    Object.keys(acertadoresPorJogo).forEach(jogoId => {
-        const el = document.getElementById(`acertadores-${jogoId}`);
-        if (el) el.innerHTML = `🎯 Acertadores: <strong>${acertadoresPorJogo[jogoId].join(', ')}</strong>`;
-    });
-
-    // Atualiza Porcentagens e Lista de Usuários (Mantendo a lógica anterior)
     Object.keys(stats).forEach(id => {
         const r = stats[id]; const total = r.A + r.B + r.E;
         const el = document.getElementById(`res-${id}`);
-        if (el) el.innerHTML = `<span>${Math.round((r.A/total)*100)}%</span><span>${Math.round((r.E/total)*100)}%</span><span>${Math.round((r.B/total)*100)}%</span>`;
+        if (el) el.innerHTML = `<span>${JOGOS[id].timeA}: ${Math.round((r.A/total)*100)}%</span><span>Empate: ${Math.round((r.E/total)*100)}%</span><span>${JOGOS[id].timeB}: ${Math.round((r.B/total)*100)}%</span>`;
     });
 
     const listaEl = document.getElementById('lista-usuarios');
-    listaEl.innerHTML = Object.entries(users).map(([nome, escolhas]) => `
+    const sortedUsers = Object.entries(users).sort((a, b) => Object.keys(b[1]).length - Object.keys(a[1]).length);
+
+    listaEl.innerHTML = sortedUsers.map(([nome, escolhas]) => `
         <div class="ranking-item">
-            <strong>👤 ${nome}</strong> (${Object.keys(escolhas).length} palpites)
+            <div class="user-row">
+                <strong>👤 ${nome}</strong>
+                <span class="user-badge">${Object.keys(escolhas).length} palpites</span>
+            </div>
+            <span class="user-selections"><strong>Times:</strong> ${Object.values(escolhas).join(', ')}</span>
         </div>
-    `).join('');
+    `).join('') || "Nenhum palpite ainda.";
 });
 
-document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
-checarAdmin();
 renderizar();
 </script>
 </body>
