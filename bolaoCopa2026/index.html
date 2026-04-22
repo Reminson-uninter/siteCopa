@@ -41,7 +41,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .dia, .ranking-item { animation: fadeIn 0.4s ease-out forwards; }
+        .dia, .ranking-item, .card-votos { animation: fadeIn 0.4s ease-out forwards; }
 
         /* --- LAYOUT --- */
         .container { width: 100%; max-width: 800px; margin: 0 auto; flex: 1; }
@@ -88,12 +88,19 @@
         .btn-reset { display: block; width: 100%; text-align: center; color: var(--danger); font-size: 12px; cursor: pointer; margin-top: 12px; border: none; background: none; text-decoration: underline; font-weight: bold; }
         .resultado-oficial { background: #fff3cd; color: #856404; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center; font-weight: bold; font-size: 12px; border: 1px solid #ffeeba; }
 
-        /* RANKING */
-        .box-info { background: #fff; padding: 20px; border-radius: 12px; margin: 20px 0 100px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        /* RANKING E CARDS DE VOTOS */
+        .box-info { background: #fff; padding: 20px; border-radius: 12px; margin: 20px 0 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .ranking-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
         .ranking-item { padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; transition: 0.3s; }
         .ranking-item:hover { border-color: var(--primary); transform: translateX(5px); }
         .pontos { background: var(--secondary); color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+
+        /* NOVOS CARDS DE PALPITES POR USUÁRIO */
+        .grid-votos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; margin-bottom: 100px; }
+        .card-votos { background: #fff; border-radius: 10px; padding: 15px; border-left: 5px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-votos h4 { font-size: 14px; margin-bottom: 10px; color: #444; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .item-voto { font-size: 12px; display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #f0f0f0; }
+        .voto-badge { font-weight: bold; color: var(--primary); }
 
         /* ACOES FIXAS */
         .acoes-fixas { 
@@ -145,6 +152,11 @@
     <div class="box-info">
         <h3>🥇 Ranking de Pontos</h3>
         <div id="lista-usuarios" class="ranking-grid">Aguardando votos...</div>
+    </div>
+
+    <div class="box-info">
+        <h3>📋 Palpites da Galera</h3>
+        <div id="grid-votos-usuarios" class="grid-votos">Carregando palpites...</div>
     </div>
 
     <div class="acoes-fixas">
@@ -325,20 +337,51 @@ onSnapshot(collection(db, "resultados"), (snap) => {
 
 onSnapshot(collection(db, "palpites"), (snap) => {
     const ranking = {};
+    const palpitesPorJogo = {}; // Novo: Agrupar votos para os cards
+
     snap.forEach(docSnap => {
         const p = docSnap.data();
+        
+        // Lógica do Ranking
         if(!ranking[p.usuario]) ranking[p.usuario] = 0;
         if(resultadosOficiais[p.jogoId] && resultadosOficiais[p.jogoId] === p.escolha) {
             ranking[p.usuario] += 3;
         }
+
+        // Lógica dos Cards de Votos
+        if(!palpitesPorJogo[p.jogoId]) palpitesPorJogo[p.jogoId] = [];
+        palpitesPorJogo[p.jogoId].push(p);
     });
 
+    // Renderizar Ranking
     const rankingEl = document.getElementById('lista-usuarios');
     rankingEl.innerHTML = Object.entries(ranking).sort((a,b) => b[1] - a[1]).map(([nome, pts]) => `
         <div class="ranking-item">
             <strong>👤 ${nome}</strong>
             <span class="pontos">${pts} pts</span>
         </div>`).join('') || "Aguardando votos...";
+
+    // Renderizar Cards de Palpites (Quem votou em quê)
+    const gridVotosEl = document.getElementById('grid-votos-usuarios');
+    gridVotosEl.innerHTML = JOGOS.map(j => {
+        const votosDesteJogo = palpitesPorJogo[j.id] || [];
+        if (votosDesteJogo.length === 0) return ''; // Não mostra card se não houver votos
+
+        return `
+            <div class="card-votos">
+                <h4>⚽ ${j.tA} x ${j.tB}</h4>
+                ${votosDesteJogo.map(v => {
+                    let escolhaTxt = v.escolha === 'A' ? j.tA : (v.escolha === 'B' ? j.tB : 'Empate');
+                    return `
+                        <div class="item-voto">
+                            <span>${v.usuario}</span>
+                            <span class="voto-badge">${escolhaTxt}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }).join('') || "Nenhum palpite registrado.";
 });
 
 renderizar();
