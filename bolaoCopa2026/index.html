@@ -107,29 +107,45 @@ const db = getFirestore(app);
 const RESULTADOS_API = { 0: "A" };
 
 const JOGOS = [
-    // --- RODADA 1: ABERTURAS E ESTREIAS ---
-    { id: 0, timeA: "México", timeB: "A definir", data: "2026-06-11", hora: "18:00", local: "Estádio Azteca (Cidade do México)" },
-    { id: 1, timeA: "A definir", timeB: "A definir", data: "2026-06-11", hora: "21:00", local: "Estádio Guadalajara (Guadalajara)" },
-    { id: 2, timeA: "Canadá", timeB: "A definir", data: "2026-06-12", hora: "19:00", local: "BMO Field (Toronto)" },
-    { id: 3, timeA: "EUA", timeB: "A definir", data: "2026-06-12", hora: "22:00", local: "SoFi Stadium (Los Angeles)" },
-    { id: 4, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "14:00", local: "MetLife Stadium (NY/New Jersey)" },
-    { id: 5, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "18:00", local: "Levi's Stadium (San Francisco)" },
-    { id: 6, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "21:00", local: "BC Place (Vancouver)" },
+    // --- 1ª RODADA ---
+    { id: 1, grupo: "A", tA: "México", tB: "África do Sul", data: "2026-06-11", hora: "16:00", local: "Cid. do México" },
+    { id: 2, grupo: "A", tA: "Coréia do Sul", tB: "Rep. Tcheca", data: "2026-06-11", hora: "23:00", local: "Guadalajara" },
+    { id: 3, grupo: "B", tA: "Canadá", tB: "Bósnia", data: "2026-06-12", hora: "16:00", local: "Toronto" },
+    { id: 4, grupo: "D", tA: "EUA", tB: "Paraguai", data: "2026-06-12", hora: "22:00", local: "Los Angeles" },
+    { id: 5, grupo: "B", tA: "Catar", tB: "Suíça", data: "2026-06-13", hora: "16:00", local: "Santa Clara" },
+    { id: 6, grupo: "C", tA: "Brasil", tB: "Marrocos", data: "2026-06-13", hora: "19:00", local: "NY/New Jersey" },
+    { id: 7, grupo: "C", tA: "Haiti", tB: "Escócia", data: "2026-06-13", hora: "22:00", local: "Boston" },
+    { id: 8, grupo: "D", tA: "Austrália", tB: "Turquia", data: "2026-06-14", hora: "01:00", local: "Vancouver" },
+    { id: 9, grupo: "E", tA: "Alemanha", tB: "Curaçau", data: "2026-06-14", hora: "14:00", local: "Houston" },
+    { id: 10, grupo: "F", tA: "Holanda", tB: "Japão", data: "2026-06-14", hora: "17:00", local: "Dallas" },
+    { id: 11, grupo: "E", tA: "Costa do Marfim", tB: "Equador", data: "2026-06-14", hora: "20:00", local: "Filadélfia" },
+    { id: 12, grupo: "F", tA: "Suécia", tB: "Tunísia", data: "2026-06-14", hora: "23:00", local: "Monterrey" },
+    { id: 13, grupo: "H", tA: "Espanha", tB: "Cabo Verde", data: "2026-06-15", hora: "13:00", local: "Atlanta" },
+    { id: 14, grupo: "G", tA: "Bélgica", tB: "Egito", data: "2026-06-15", hora: "16:00", local: "Seattle" },
+    { id: 15, grupo: "H", tA: "Arábia Saudita", tB: "Uruguai", data: "2026-06-15", hora: "19:00", local: "Miami" },
+    { id: 16, grupo: "G", tA: "Irã", tB: "Nova Zelândia", data: "2026-06-15", hora: "22:00", local: "Los Angeles" },
+    { id: 17, grupo: "I", tA: "França", tB: "Senegal", data: "2026-06-16", hora: "16:00", local: "NY/New Jersey" },
+    { id: 18, grupo: "I", tA: "Iraque", tB: "Noruega", data: "2026-06-16", hora: "19:00", local: "Boston" },
+    { id: 19, grupo: "J", tA: "Argentina", tB: "Argélia", data: "2026-06-16", hora: "22:00", local: "Kansas City" },
+    { id: 20, grupo: "J", tA: "Áustria", tB: "Jordânia", data: "2026-06-17", hora: "01:00", local: "Santa Clara" },
+    { id: 21, grupo: "K", tA: "Portugal", tB: "RD Congo", data: "2026-06-17", hora: "14:00", local: "Houston" },
+    { id: 22, grupo: "L", tA: "Inglaterra", tB: "Croácia", data: "2026-06-17", hora: "17:00", local: "Dallas" },
+    { id: 23, grupo: "L", tA: "Gana", tB: "Panamá", data: "2026-06-17", hora: "20:00", local: "Toronto" },
+    { id: 24, grupo: "K", tA: "Uzbequistão", tB: "Colômbia", data: "2026-06-17", hora: "21:00", local: "Cid. do México" },
 
-    // --- RODADA 2: CONSOLIDAÇÃO DOS GRUPOS ---
-    { id: 7, timeA: "A definir", timeB: "A definir", data: "2026-06-14", hora: "15:00", local: "Hard Rock Stadium (Miami)" },
-    { id: 8, timeA: "A definir", timeB: "A definir", data: "2026-06-14", hora: "19:00", local: "AT&T Stadium (Dallas)" },
-    { id: 9, timeA: "México", timeB: "A definir", data: "2026-06-18", hora: "20:00", local: "Estádio Guadalajara (Guadalajara)" },
-    { id: 10, timeA: "Canadá", timeB: "A definir", data: "2026-06-18", hora: "21:00", local: "BC Place (Vancouver)" },
-    { id: 11, timeA: "EUA", timeB: "A definir", data: "2026-06-19", hora: "22:00", local: "Lumen Field (Seattle)" },
-
-    // --- RODADA 3: DECISÃO DA FASE DE GRUPOS ---
-    { id: 12, timeA: "México", timeB: "A definir", data: "2026-06-24", hora: "18:00", local: "Estádio Azteca (Cidade do México)" },
-    { id: 13, timeA: "Canadá", timeB: "A definir", data: "2026-06-24", hora: "21:00", local: "BC Place (Vancouver)" },
-    { id: 14, timeA: "A definir", timeB: "A definir", data: "2026-06-25", hora: "16:00", local: "Lincoln Financial Field (Filadélfia)" },
-    { id: 15, timeA: "EUA", timeB: "A definir", data: "2026-06-25", hora: "22:00", local: "SoFi Stadium (Los Angeles)" },
-    { id: 16, timeA: "A definir", timeB: "A definir", data: "2026-06-26", hora: "20:00", local: "Mercedes-Benz Stadium (Atlanta)" },
-    { id: 17, timeA: "A definir", timeB: "A definir", data: "2026-06-27", hora: "19:00", local: "NRG Stadium (Houston)" }
+    // --- 2ª RODADA ---
+    { id: 25, grupo: "A", tA: "Rep. Tcheca", tB: "África do Sul", data: "2026-06-18", hora: "13:00", local: "Atlanta" },
+    { id: 26, grupo: "B", tA: "Suíça", tB: "Bósnia", data: "2026-06-18", hora: "16:00", local: "Los Angeles" },
+    { id: 27, grupo: "B", tA: "Canadá", tB: "Catar", data: "2026-06-18", hora: "19:00", local: "Vancouver" },
+    { id: 28, grupo: "A", tA: "México", tB: "Coréia do Sul", data: "2026-06-18", hora: "22:00", local: "Guadalajara" },
+    { id: 29, grupo: "D", tA: "EUA", tB: "Austrália", data: "2026-06-19", hora: "16:00", local: "Seattle" },
+    { id: 30, grupo: "C", tA: "Escócia", tB: "Marrocos", data: "2026-06-19", hora: "19:00", local: "Boston" },
+    { id: 31, grupo: "C", tA: "Brasil", tB: "Haiti", data: "2026-06-19", hora: "21:30", local: "Filadélfia" },
+    { id: 32, grupo: "D", tA: "Turquia", tB: "Paraguai", data: "2026-06-20", hora: "00:00", local: "Santa Clara" },
+    { id: 33, grupo: "E", tA: "Alemanha", tB: "Costa do Marfim", data: "2026-06-20", hora: "17:00", local: "Toronto" },
+    { id: 34, grupo: "E", tA: "Equador", tB: "Curaçau", data: "2026-06-20", hora: "21:00", local: "Kansas City" },
+    { id: 35, grupo: "F", tA: "Holanda", tB: "Suécia", data: "2026-06-20", hora: "14:00", local: "Houston" },
+    { id: 36, grupo: "F", tA: "Tunísia", tB: "Japão", data: "2026-06-20", hora: "23:00", local: "Monterrey" }
 ];
 
 let enviado = localStorage.getItem('bolao_enviado') === 'true';
