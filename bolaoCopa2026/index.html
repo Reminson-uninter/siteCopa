@@ -11,25 +11,33 @@
         h1 { text-align: center; margin-bottom: 8px; color: #1a3a1a; }
         .subtitle { text-align: center; color: #555; margin-bottom: 20px; font-size: 14px; }
         
-        /* Estilo do Input de Usuário */
         .user-box { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         input { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; }
 
         .dia { background: #fff; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
         .dia-header { background: #198754; color: #fff; padding: 12px 16px; font-weight: 600; text-transform: capitalize; }
         .jogo { padding: 16px; border-bottom: 1px solid #eee; }
-        .info { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 12px; }
+        
+        .header-jogo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .info { display: flex; gap: 15px; font-size: 11px; color: #888; }
         
         .palpite { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
         .btn { padding: 12px 8px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 14px; }
         .btn:hover { border-color: #198754; }
-        
-        /* Classes de Seleção */
         .btn.active { background: #198754 !important; color: #fff !important; border-color: #198754 !important; }
-        .btn-empate { font-size: 12px; min-width: 80px; }
+        
+        .btn-limpar { background: #ff4d4d; color: white; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-limpar:hover { background: #cc0000; }
 
         .votos-resumo { font-size: 11px; color: #666; margin-top: 10px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 5px; border-radius: 4px; }
-        .acoes { display: flex; gap: 10px; margin-top: 20px; position: sticky; bottom: 10px; }
+        
+        .ranking-box { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 80px; }
+        .ranking-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .user-badge { background: #198754; color: white; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .user-selections { font-size: 11px; color: #666; line-height: 1.4; font-style: italic; display: block; background: #f9f9f9; padding: 5px; border-radius: 4px; }
+
+        .acoes { display: flex; gap: 10px; margin-top: 20px; position: sticky; bottom: 10px; z-index: 100; }
         .btn-acao { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .exportar { background: #0d6efd; color: #fff; }
     </style>
@@ -47,6 +55,11 @@
 
     <div id="jogos"></div>
 
+    <div class="ranking-box">
+        <h3>📊 Atividade dos Apostadores</h3>
+        <div id="lista-usuarios">Carregando palpites...</div>
+    </div>
+
     <div class="acoes">
         <button class="btn-acao exportar" onclick="window.print()">Imprimir Meus Palpites</button>
     </div>
@@ -55,12 +68,8 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    onSnapshot, 
-    query, 
-    serverTimestamp 
+    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, 
+    query, where, getDocs, deleteDoc, doc 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -72,133 +81,140 @@ const firebaseConfig = {
     appId: "1:414087453168:web:26aae8628a51dd0bc4a535"
 };
 
-// Inicialização correta
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); // Esta linha é crucial!
+const db = getFirestore(app);
 
 const JOGOS = [
-    // GRUPO A
-    { id: 0, grupo: "A", data: "2026-06-11", hora: "16:00", timeA: "México", timeB: "África do Sul", local: "Cidade do México" },
-    { id: 1, grupo: "A", data: "2026-06-11", hora: "21:00", timeA: "Canadá", timeB: "Togo", local: "Toronto" },
-    { id: 2, grupo: "A", data: "2026-06-14", hora: "18:00", timeA: "México", timeB: "Canadá", local: "Monterrey" },
-    
-    // GRUPO B
-    { id: 3, grupo: "B", data: "2026-06-12", hora: "19:00", timeA: "EUA", timeB: "Cazaquistão", local: "Los Angeles" },
-    { id: 4, grupo: "B", data: "2026-06-12", hora: "22:00", timeA: "Coreia do Sul", timeB: "Tchéquia", local: "Seattle" },
-    { id: 5, grupo: "B", data: "2026-06-16", hora: "20:00", timeA: "EUA", timeB: "Coreia do Sul", local: "San Francisco" },
-
-    // GRUPO C (Brasil costuma entrar aqui ou no D)
-    { id: 6, grupo: "C", data: "2026-06-13", hora: "13:00", timeA: "Brasil", timeB: "Escócia", local: "Miami" },
-    { id: 7, grupo: "C", data: "2026-06-13", hora: "16:00", timeA: "Mali", timeB: "Nova Zelândia", local: "Orlando" },
-    { id: 8, grupo: "C", data: "2026-06-17", hora: "21:00", timeA: "Brasil", timeB: "Mali", local: "Houston" },
-
-    // GRUPO D
-    { id: 9, grupo: "D", data: "2026-06-14", hora: "12:00", timeA: "Argentina", timeB: "Honduras", local: "Dallas" },
-    { id: 10, grupo: "D", data: "2026-06-14", hora: "15:00", timeA: "França", timeB: "Uzbequistão", local: "Atlanta" },
-    
-    // Adicione os demais seguindo o padrão de ID incremental...
+    { id: 0, timeA: "México", timeB: "África do Sul", data: "2026-06-11", hora: "16:00", local: "Cidade do México" },
+    { id: 1, timeA: "Canadá", timeB: "Togo", data: "2026-06-11", hora: "21:00", local: "Toronto" },
+    { id: 2, timeA: "México", timeB: "Canadá", data: "2026-06-14", hora: "18:00", local: "Monterrey" },
+    { id: 3, timeA: "EUA", timeB: "Cazaquistão", data: "2026-06-12", hora: "19:00", local: "Los Angeles" },
+    { id: 4, timeA: "Coreia do Sul", timeB: "Tchéquia", data: "2026-06-12", hora: "22:00", local: "Seattle" },
+    { id: 5, timeA: "EUA", timeB: "Coreia do Sul", data: "2026-06-16", hora: "20:00", local: "San Francisco" },
+    { id: 6, timeA: "Brasil", timeB: "Escócia", data: "2026-06-13", hora: "13:00", local: "Miami" },
+    { id: 7, timeA: "Mali", timeB: "Nova Zelândia", data: "2026-06-13", hora: "16:00", local: "Orlando" },
+    { id: 8, timeA: "Brasil", timeB: "Mali", data: "2026-06-17", hora: "21:00", local: "Houston" },
+    { id: 9, timeA: "Argentina", timeB: "Honduras", data: "2026-06-14", hora: "12:00", local: "Dallas" },
+    { id: 10, timeA: "França", timeB: "Uzbequistão", data: "2026-06-14", hora: "15:00", local: "Atlanta" }
 ];
 
-    // Carregar nome salvo no navegador
-    document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
+document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
+window.salvarNomeLocal = () => localStorage.setItem('bolao_user', document.getElementById('usuario').value);
 
-    window.salvarNomeLocal = () => {
-        localStorage.setItem('bolao_user', document.getElementById('usuario').value);
-    };
+function formatarData(dataStr) {
+    const d = new Date(dataStr + 'T12:00:00');
+    return d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+}
 
-    function formatarData(dataStr) {
-        const d = new Date(dataStr + 'T12:00:00');
-        return d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-    }
+window.renderizar = () => {
+    const container = document.getElementById('jogos');
+    const porDia = {};
+    const escolhasLocais = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
 
-    // Renderização com LocalStorage para persistência visual rápida
-    window.renderizar = () => {
-        const container = document.getElementById('jogos');
-        const porDia = {};
-        const escolhasLocais = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-
-        JOGOS.forEach(j => {
-            if (!porDia[j.data]) porDia[j.data] = [];
-            porDia[j.data].push(j);
-        });
-
-        container.innerHTML = Object.keys(porDia).sort().map(data => `
-            <div class="dia">
-                <div class="dia-header">${formatarData(data)}</div>
-                ${porDia[data].map(j => {
-                    const sel = escolhasLocais[j.id];
-                    return `
-                    <div class="jogo" id="jogo-${j.id}">
-                        <div class="info">
-                            <span>🕒 ${j.hora}</span>
-                            <span>📍 ${j.local}</span>
-                        </div>
-                        <div class="palpite">
-                            <button class="btn ${sel === 'A' ? 'active' : ''}" onclick="votar(${j.id}, 'A')">${j.timeA}</button>
-                            <button class="btn btn-empate ${sel === 'E' ? 'active' : ''}" onclick="votar(${j.id}, 'E')">Empate</button>
-                            <button class="btn ${sel === 'B' ? 'active' : ''}" onclick="votar(${j.id}, 'B')">${j.timeB}</button>
-                        </div>
-                        <div class="votos-resumo" id="res-${j.id}">
-                            Carregando tendências...
-                        </div>
-                    </div>`;
-                }).join('')}
-            </div>
-        `).join('');
-    };
-
-    // Função de Voto Atualizada
-    window.votar = async (jogoId, opcao) => {
-        const nome = document.getElementById('usuario').value;
-        if (!nome) {
-            alert("Por favor, digite seu nome antes de votar!");
-            return;
-        }
-
-        // Feedback visual imediato
-        const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-        escolhas[jogoId] = opcao;
-        localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
-        renderizar();
-
-        // Enviar para Firebase
-        try {
-            await addDoc(collection(db, "palpites"), {
-                jogoId,
-                escolha: opcao,
-                usuario: nome,
-                timestamp: serverTimestamp()
-            });
-        } catch (e) {
-            console.error("Erro ao salvar:", e);
-        }
-    };
-
-    // Real-time Updates com Firestore
-    onSnapshot(collection(db, "palpites"), (snapshot) => {
-        const estatisticas = {};
-        snapshot.forEach(doc => {
-            const p = doc.data();
-            if (!estatisticas[p.jogoId]) estatisticas[p.jogoId] = { A: 0, B: 0, E: 0 };
-            estatisticas[p.jogoId][p.escolha]++;
-        });
-
-        Object.keys(estatisticas).forEach(id => {
-            const r = estatisticas[id];
-            const total = r.A + r.B + r.E;
-            const el = document.getElementById(`res-${id}`);
-            if (el) {
-                el.innerHTML = `
-                    <span>${JOGOS[id].timeA}: ${Math.round((r.A/total)*100)}%</span>
-                    <span>Empate: ${Math.round((r.E/total)*100)}%</span>
-                    <span>${JOGOS[id].timeB}: ${Math.round((r.B/total)*100)}%</span>
-                `;
-            }
-        });
+    JOGOS.forEach(j => {
+        if (!porDia[j.data]) porDia[j.data] = [];
+        porDia[j.data].push(j);
     });
 
-    renderizar();
-</script>
+    container.innerHTML = Object.keys(porDia).sort().map(data => `
+        <div class="dia">
+            <div class="dia-header">${formatarData(data)}</div>
+            ${porDia[data].map(j => {
+                const sel = escolhasLocais[j.id];
+                return `
+                <div class="jogo">
+                    <div class="header-jogo">
+                        <div class="info"><span>🕒 ${j.hora}</span><span>📍 ${j.local}</span></div>
+                        ${sel ? `<button class="btn-limpar" onclick="limparPalpite(${j.id})">🗑️ Limpar</button>` : ''}
+                    </div>
+                    <div class="palpite">
+                        <button class="btn ${sel === 'A' ? 'active' : ''}" onclick="votar(${j.id}, 'A')">${j.timeA}</button>
+                        <button class="btn btn-empate ${sel === 'E' ? 'active' : ''}" onclick="votar(${j.id}, 'E')">Empate</button>
+                        <button class="btn ${sel === 'B' ? 'active' : ''}" onclick="votar(${j.id}, 'B')">${j.timeB}</button>
+                    </div>
+                    <div class="votos-resumo" id="res-${j.id}">Carregando...</div>
+                </div>`;
+            }).join('')}
+        </div>
+    `).join('');
+};
 
+window.votar = async (jogoId, opcao) => {
+    const nome = document.getElementById('usuario').value;
+    if (!nome) return alert("Por favor, digite seu nome primeiro!");
+
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    escolhas[jogoId] = opcao;
+    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
+    renderizar();
+
+    try {
+        await addDoc(collection(db, "palpites"), {
+            jogoId, escolha: opcao, usuario: nome, timestamp: serverTimestamp()
+        });
+    } catch (e) { console.error(e); }
+};
+
+window.limparPalpite = async (jogoId) => {
+    const nome = document.getElementById('usuario').value;
+    if (!nome) return alert("Digite seu nome para validar a exclusão!");
+
+    if (!confirm("Remover seu palpite deste jogo?")) return;
+
+    // Atualiza interface local
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    delete escolhas[jogoId];
+    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
+    renderizar();
+
+    // Remove do Firebase
+    try {
+        const q = query(collection(db, "palpites"), where("usuario", "==", nome), where("jogoId", "==", jogoId));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (documento) => {
+            await deleteDoc(doc(db, "palpites", documento.id));
+        });
+    } catch (e) { console.error("Erro ao limpar:", e); }
+};
+
+onSnapshot(collection(db, "palpites"), (snapshot) => {
+    const stats = {};
+    const users = {};
+
+    snapshot.forEach(doc => {
+        const p = doc.data();
+        if (!stats[p.jogoId]) stats[p.jogoId] = { A: 0, B: 0, E: 0 };
+        stats[p.jogoId][p.escolha]++;
+
+        if (!users[p.usuario]) users[p.usuario] = {};
+        const jogo = JOGOS.find(j => j.id === p.jogoId);
+        if (jogo) {
+            let txt = p.escolha === 'A' ? jogo.timeA : p.escolha === 'B' ? jogo.timeB : "Empate";
+            users[p.usuario][p.jogoId] = txt;
+        }
+    });
+
+    Object.keys(stats).forEach(id => {
+        const r = stats[id]; const total = r.A + r.B + r.E;
+        const el = document.getElementById(`res-${id}`);
+        if (el) el.innerHTML = `<span>${JOGOS[id].timeA}: ${Math.round((r.A/total)*100)}%</span><span>Empate: ${Math.round((r.E/total)*100)}%</span><span>${JOGOS[id].timeB}: ${Math.round((r.B/total)*100)}%</span>`;
+    });
+
+    const listaEl = document.getElementById('lista-usuarios');
+    const sortedUsers = Object.entries(users).sort((a, b) => Object.keys(b[1]).length - Object.keys(a[1]).length);
+
+    listaEl.innerHTML = sortedUsers.map(([nome, escolhas]) => `
+        <div class="ranking-item">
+            <div class="user-row">
+                <strong>👤 ${nome}</strong>
+                <span class="user-badge">${Object.keys(escolhas).length} palpites</span>
+            </div>
+            <span class="user-selections"><strong>Times:</strong> ${Object.values(escolhas).join(', ')}</span>
+        </div>
+    `).join('') || "Nenhum palpite ainda.";
+});
+
+renderizar();
+</script>
 </body>
 </html>
