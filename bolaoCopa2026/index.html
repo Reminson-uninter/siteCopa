@@ -6,64 +6,76 @@
     <title>Bolão Copa 2026 - MERN Style</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; padding: 16px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 8px; color: #1a3a1a; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; padding: 16px; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; flex: 1; width: 100%; }
+        h1 { text-align: center; margin-bottom: 8px; color: #1a3a1a; font-size: 24px; }
         .subtitle { text-align: center; color: #555; margin-bottom: 20px; font-size: 14px; }
         
+        /* Box de Usuário */
         .user-box { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; }
+        input { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; }
+        input:focus { border-color: #198754; }
 
+        /* Cartão de Dia/Jogo */
         .dia { background: #fff; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-        .dia-header { background: #198754; color: #fff; padding: 12px 16px; font-weight: 600; text-transform: capitalize; }
+        .dia-header { background: #198754; color: #fff; padding: 12px 16px; font-weight: 600; text-transform: capitalize; font-size: 14px; }
         .jogo { padding: 16px; border-bottom: 1px solid #eee; }
+        .jogo:last-child { border-bottom: none; }
         
         .header-jogo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .info { display: flex; gap: 15px; font-size: 11px; color: #888; }
+        .info { display: flex; gap: 12px; font-size: 11px; color: #888; }
         
+        /* Botões de Palpite */
         .palpite { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
-        .btn { padding: 12px 8px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 14px; }
+        .btn { padding: 12px 4px; border: 2px solid #eee; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 13px; text-align: center; min-height: 45px; }
         .btn:hover { border-color: #198754; }
         .btn.active { background: #198754 !important; color: #fff !important; border-color: #198754 !important; }
         
-        .btn-limpar { background: #ff4d4d; color: white; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .btn-limpar:hover { background: #cc0000; }
+        .btn-limpar { background: #ffefef; color: #dc3545; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
-        .votos-resumo { font-size: 11px; color: #666; margin-top: 10px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 5px; border-radius: 4px; }
+        /* Áreas de Feedback */
+        .acertadores-box { margin-top: 10px; padding: 10px; background: #d1e7dd; border-radius: 8px; font-size: 12px; color: #0f5132; display: none; border-left: 4px solid #198754; }
+        .acertadores-box.ativo { display: block; }
+        .votos-resumo { font-size: 10px; color: #999; margin-top: 10px; display: flex; justify-content: space-around; background: #fcfcfc; padding: 6px; border-radius: 4px; border: 1px solid #f0f0f0; }
+
+        /* Ranking e Rodapé */
+        .ranking-box { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 40px; }
+        .ranking-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         
-        .ranking-box { background: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 80px; }
-        .ranking-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .user-badge { background: #198754; color: white; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-        .user-selections { font-size: 11px; color: #666; line-height: 1.4; font-style: italic; display: block; background: #f9f9f9; padding: 5px; border-radius: 4px; }
+        footer { text-align: center; padding: 25px; color: #888; font-size: 13px; background: #fff; margin-top: auto; border-top: 1px solid #eee; }
+        .admin-badge { background: #0d6efd; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
 
-        .acoes { display: flex; gap: 10px; margin-top: 20px; position: sticky; bottom: 10px; z-index: 100; }
-        .btn-acao { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .exportar { background: #0d6efd; color: #fff; }
+        .acoes { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 20px; }
+        .btn-acao { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: #0d6efd; color: #fff; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>⚽ Bolão Copa 2026</h1>
-    <div class="subtitle">EUA, México e Canadá · Fase de Grupos</div>
+    <div class="subtitle">Canadá, México e EUA · Fase de Grupos</div>
 
     <div class="user-box">
-        <label><strong>Seu Nome para o Ranking:</strong></label>
-        <input type="text" id="usuario" placeholder="Ex: Reminson" oninput="salvarNomeLocal()">
+        <label><strong>Seu Nome <span id="admin-label"></span>:</strong></label>
+        <input type="text" id="usuario" placeholder="Digite seu nome para votar" oninput="checarAdmin()">
     </div>
 
     <div id="jogos"></div>
 
     <div class="ranking-box">
         <h3>📊 Atividade dos Apostadores</h3>
-        <div id="lista-usuarios">Carregando palpites...</div>
+        <div id="lista-usuarios">Aguardando palpites...</div>
     </div>
 
     <div class="acoes">
-        <button class="btn-acao exportar" onclick="window.print()">Imprimir Meus Palpites</button>
+        <button class="btn-acao" onclick="window.print()">📥 Imprimir Meus Palpites</button>
     </div>
 </div>
+
+<footer>
+    Desenvolvido por <strong>Reminson</strong><br>
+    Administrador do Bolão: <strong>Paulinho</strong>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -84,27 +96,59 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Resultados simulados da API para teste da lógica de acertos
+const RESULTADOS_API = {
+    0: "A", // México venceu o jogo de abertura
+};
+
+// PARTIDAS OFICIAIS CONFIRMADAS - COPA 2026
 const JOGOS = [
-    { id: 0, timeA: "México", timeB: "África do Sul", data: "2026-06-11", hora: "16:00", local: "Cidade do México" },
-    { id: 1, timeA: "Canadá", timeB: "Togo", data: "2026-06-11", hora: "21:00", local: "Toronto" },
-    { id: 2, timeA: "México", timeB: "Canadá", data: "2026-06-14", hora: "18:00", local: "Monterrey" },
-    { id: 3, timeA: "EUA", timeB: "Cazaquistão", data: "2026-06-12", hora: "19:00", local: "Los Angeles" },
-    { id: 4, timeA: "Coreia do Sul", timeB: "Tchéquia", data: "2026-06-12", hora: "22:00", local: "Seattle" },
-    { id: 5, timeA: "EUA", timeB: "Coreia do Sul", data: "2026-06-16", hora: "20:00", local: "San Francisco" },
-    { id: 6, timeA: "Brasil", timeB: "Escócia", data: "2026-06-13", hora: "13:00", local: "Miami" },
-    { id: 7, timeA: "Mali", timeB: "Nova Zelândia", data: "2026-06-13", hora: "16:00", local: "Orlando" },
-    { id: 8, timeA: "Brasil", timeB: "Mali", data: "2026-06-17", hora: "21:00", local: "Houston" },
-    { id: 9, timeA: "Argentina", timeB: "Honduras", data: "2026-06-14", hora: "12:00", local: "Dallas" },
-    { id: 10, timeA: "França", timeB: "Uzbequistão", data: "2026-06-14", hora: "15:00", local: "Atlanta" }
+    { id: 0, timeA: "México", timeB: "A definir", data: "2026-06-11", hora: "18:00", local: "Estádio Azteca (Cidade do México)" },
+    { id: 1, timeA: "Canadá", timeB: "A definir", data: "2026-06-12", hora: "20:00", local: "BMO Field (Toronto)" },
+    { id: 2, timeA: "EUA", timeB: "A definir", data: "2026-06-12", hora: "21:00", local: "SoFi Stadium (Los Angeles)" },
+    { id: 3, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "15:00", local: "MetLife Stadium (NY/NJ)" },
+    { id: 4, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "19:00", local: "Levi's Stadium (San Francisco)" },
+    { id: 5, timeA: "México", timeB: "A definir", data: "2026-06-18", hora: "21:00", local: "Estádio Akron (Guadalajara)" },
+    { id: 6, timeA: "Canadá", timeB: "A definir", data: "2026-06-18", hora: "18:00", local: "BC Place (Vancouver)" },
+    { id: 7, timeA: "EUA", timeB: "A definir", data: "2026-06-19", hora: "20:00", local: "Lumen Field (Seattle)" }
 ];
 
-document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
-window.salvarNomeLocal = () => localStorage.setItem('bolao_user', document.getElementById('usuario').value);
+window.checarAdmin = () => {
+    const nome = document.getElementById('usuario').value;
+    const label = document.getElementById('admin-label');
+    localStorage.setItem('bolao_user', nome);
+    if(nome.toLowerCase() === "paulinho") {
+        label.innerHTML = '<span class="admin-badge">ADMIN</span>';
+    } else { label.innerHTML = ''; }
+};
 
-function formatarData(dataStr) {
-    const d = new Date(dataStr + 'T12:00:00');
-    return d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-}
+window.votar = async (jogoId, opcao) => {
+    const nome = document.getElementById('usuario').value;
+    if (!nome) return alert("Por favor, digite seu nome antes de votar!");
+    
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    escolhas[jogoId] = opcao;
+    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
+    renderizar();
+
+    await addDoc(collection(db, "palpites"), {
+        jogoId, escolha: opcao, usuario: nome, timestamp: serverTimestamp()
+    });
+};
+
+window.limparPalpite = async (jogoId) => {
+    const nome = document.getElementById('usuario').value;
+    if (!confirm("Deseja remover seu palpite deste jogo?")) return;
+
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    delete escolhas[jogoId];
+    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
+    renderizar();
+
+    const q = query(collection(db, "palpites"), where("usuario", "==", nome), where("jogoId", "==", jogoId));
+    const qs = await getDocs(q);
+    qs.forEach(async (d) => await deleteDoc(doc(db, "palpites", d.id)));
+};
 
 window.renderizar = () => {
     const container = document.getElementById('jogos');
@@ -118,9 +162,10 @@ window.renderizar = () => {
 
     container.innerHTML = Object.keys(porDia).sort().map(data => `
         <div class="dia">
-            <div class="dia-header">${formatarData(data)}</div>
+            <div class="dia-header">${new Date(data+'T12:00:00').toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long'})}</div>
             ${porDia[data].map(j => {
                 const sel = escolhasLocais[j.id];
+                const temResultado = RESULTADOS_API[j.id] !== undefined;
                 return `
                 <div class="jogo">
                     <div class="header-jogo">
@@ -129,91 +174,67 @@ window.renderizar = () => {
                     </div>
                     <div class="palpite">
                         <button class="btn ${sel === 'A' ? 'active' : ''}" onclick="votar(${j.id}, 'A')">${j.timeA}</button>
-                        <button class="btn btn-empate ${sel === 'E' ? 'active' : ''}" onclick="votar(${j.id}, 'E')">Empate</button>
+                        <button class="btn ${sel === 'E' ? 'active' : ''}" onclick="votar(${j.id}, 'E')">Empate</button>
                         <button class="btn ${sel === 'B' ? 'active' : ''}" onclick="votar(${j.id}, 'B')">${j.timeB}</button>
                     </div>
-                    <div class="votos-resumo" id="res-${j.id}">Carregando...</div>
+                    <div class="acertadores-box" id="acertadores-${j.id}">🎯 Acertadores: ...</div>
+                    <div class="votos-resumo" id="res-${j.id}">Calculando tendências...</div>
                 </div>`;
             }).join('')}
         </div>
     `).join('');
 };
 
-window.votar = async (jogoId, opcao) => {
-    const nome = document.getElementById('usuario').value;
-    if (!nome) return alert("Por favor, digite seu nome primeiro!");
-
-    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-    escolhas[jogoId] = opcao;
-    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
-    renderizar();
-
-    try {
-        await addDoc(collection(db, "palpites"), {
-            jogoId, escolha: opcao, usuario: nome, timestamp: serverTimestamp()
-        });
-    } catch (e) { console.error(e); }
-};
-
-window.limparPalpite = async (jogoId) => {
-    const nome = document.getElementById('usuario').value;
-    if (!nome) return alert("Digite seu nome para validar a exclusão!");
-
-    if (!confirm("Remover seu palpite deste jogo?")) return;
-
-    // Atualiza interface local
-    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
-    delete escolhas[jogoId];
-    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
-    renderizar();
-
-    // Remove do Firebase
-    try {
-        const q = query(collection(db, "palpites"), where("usuario", "==", nome), where("jogoId", "==", jogoId));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (documento) => {
-            await deleteDoc(doc(db, "palpites", documento.id));
-        });
-    } catch (e) { console.error("Erro ao limpar:", e); }
-};
-
 onSnapshot(collection(db, "palpites"), (snapshot) => {
     const stats = {};
     const users = {};
+    const acertadoresPorJogo = {};
 
     snapshot.forEach(doc => {
         const p = doc.data();
+        if (!stats[p.id_jogo_unico]) { /* compatibilidade */ }
+        
+        // Contagem de votos
         if (!stats[p.jogoId]) stats[p.jogoId] = { A: 0, B: 0, E: 0 };
         stats[p.jogoId][p.escolha]++;
 
-        if (!users[p.usuario]) users[p.usuario] = {};
-        const jogo = JOGOS.find(j => j.id === p.jogoId);
-        if (jogo) {
-            let txt = p.escolha === 'A' ? jogo.timeA : p.escolha === 'B' ? jogo.timeB : "Empate";
-            users[p.usuario][p.jogoId] = txt;
+        // Lógica de Acertos
+        if (RESULTADOS_API[p.jogoId] === p.escolha) {
+            if (!acertadoresPorJogo[p.jogoId]) acertadoresPorJogo[p.jogoId] = [];
+            if (!acertadoresPorJogo[p.jogoId].includes(p.usuario)) acertadoresPorJogo[p.jogoId].push(p.usuario);
+        }
+
+        // Lista de atividade
+        users[p.usuario] = (users[p.usuario] || 0) + 1;
+    });
+
+    // Atualizar UI de Acertos
+    Object.keys(RESULTADOS_API).forEach(id => {
+        const el = document.getElementById(`acertadores-${id}`);
+        if (el && acertadoresPorJogo[id]) {
+            el.classList.add('ativo');
+            el.innerHTML = `🎯 Acertadores: <strong>${acertadoresPorJogo[id].join(', ')}</strong>`;
         }
     });
 
+    // Atualizar Porcentagens
     Object.keys(stats).forEach(id => {
         const r = stats[id]; const total = r.A + r.B + r.E;
         const el = document.getElementById(`res-${id}`);
-        if (el) el.innerHTML = `<span>${JOGOS[id].timeA}: ${Math.round((r.A/total)*100)}%</span><span>Empate: ${Math.round((r.E/total)*100)}%</span><span>${JOGOS[id].timeB}: ${Math.round((r.B/total)*100)}%</span>`;
+        if (el) el.innerHTML = `<span>${Math.round((r.A/total)*100)}% Casa</span><span>${Math.round((r.E/total)*100)}% Empate</span><span>${Math.round((r.B/total)*100)}% Fora</span>`;
     });
 
-    const listaEl = document.getElementById('lista-usuarios');
-    const sortedUsers = Object.entries(users).sort((a, b) => Object.keys(b[1]).length - Object.keys(a[1]).length);
-
-    listaEl.innerHTML = sortedUsers.map(([nome, escolhas]) => `
+    // Atualizar Lista de Usuários
+    document.getElementById('lista-usuarios').innerHTML = Object.entries(users).map(([nome, qtd]) => `
         <div class="ranking-item">
-            <div class="user-row">
-                <strong>👤 ${nome}</strong>
-                <span class="user-badge">${Object.keys(escolhas).length} palpites</span>
-            </div>
-            <span class="user-selections"><strong>Times:</strong> ${Object.values(escolhas).join(', ')}</span>
+            <span>👤 <strong>${nome}</strong></span>
+            <span class="admin-badge" style="background:#eee; color:#666">${qtd} palpites</span>
         </div>
-    `).join('') || "Nenhum palpite ainda.";
+    `).join('');
 });
 
+document.getElementById('usuario').value = localStorage.getItem('bolao_user') || "";
+checarAdmin();
 renderizar();
 </script>
 </body>
