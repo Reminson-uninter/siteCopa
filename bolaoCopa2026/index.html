@@ -107,23 +107,29 @@ const db = getFirestore(app);
 const RESULTADOS_API = { 0: "A" };
 
 const JOGOS = [
-    { id: 0, timeA: "México", timeB: "A definir", data: "2026-06-11", hora: "18:00", local: "Estádio Azteca (CDMX)" },
-    { id: 1, timeA: "Canadá", timeB: "A definir", data: "2026-06-12", hora: "20:00", local: "BMO Field (Toronto)" },
-    { id: 2, timeA: "EUA", timeB: "A definir", data: "2026-06-12", hora: "21:00", local: "SoFi Stadium (Los Angeles)" },
-    { id: 3, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "13:00", local: "MetLife Stadium (NY/NJ)" },
-    { id: 4, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "17:00", local: "Levi's Stadium (SF)" },
-    { id: 5, timeA: "A definir", timeB: "A definir", data: "2026-06-14", hora: "15:00", local: "Hard Rock Stadium (Miami)" },
-    { id: 6, timeA: "A definir", timeB: "A definir", data: "2026-06-14", hora: "19:00", local: "AT&T Stadium (Dallas)" },
-    { id: 7, timeA: "México", timeB: "A definir", data: "2026-06-18", hora: "21:00", local: "Estádio Akron (Guadalajara)" },
-    { id: 8, timeA: "Canadá", timeB: "A definir", data: "2026-06-18", hora: "18:00", local: "BC Place (Vancouver)" },
-    { id: 9, timeA: "EUA", timeB: "A definir", data: "2026-06-19", hora: "20:00", local: "Lumen Field (Seattle)" },
-    { id: 10, timeA: "A definir", timeB: "A definir", data: "2026-06-20", hora: "16:00", local: "Gillette Stadium (Boston)" },
-    { id: 11, timeA: "A definir", timeB: "A definir", data: "2026-06-21", hora: "14:00", local: "Lincoln Financial Field (Phila)" },
-    { id: 12, timeA: "México", timeB: "A definir", data: "2026-06-24", hora: "20:00", local: "Estádio Azteca (CDMX)" },
-    { id: 13, timeA: "Canadá", timeB: "A definir", data: "2026-06-24", hora: "17:00", local: "BC Place (Vancouver)" },
-    { id: 14, timeA: "EUA", timeB: "A definir", data: "2026-06-25", hora: "21:00", local: "SoFi Stadium (LA)" },
-    { id: 15, timeA: "A definir", timeB: "A definir", data: "2026-06-26", hora: "19:00", local: "Mercedes-Benz (Atlanta)" },
-    { id: 16, timeA: "A definir", timeB: "A definir", data: "2026-06-27", hora: "15:00", local: "NRG Stadium (Houston)" }
+    // --- RODADA 1: ABERTURAS E ESTREIAS ---
+    { id: 0, timeA: "México", timeB: "A definir", data: "2026-06-11", hora: "18:00", local: "Estádio Azteca (Cidade do México)" },
+    { id: 1, timeA: "A definir", timeB: "A definir", data: "2026-06-11", hora: "21:00", local: "Estádio Guadalajara (Guadalajara)" },
+    { id: 2, timeA: "Canadá", timeB: "A definir", data: "2026-06-12", hora: "19:00", local: "BMO Field (Toronto)" },
+    { id: 3, timeA: "EUA", timeB: "A definir", data: "2026-06-12", hora: "22:00", local: "SoFi Stadium (Los Angeles)" },
+    { id: 4, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "14:00", local: "MetLife Stadium (NY/New Jersey)" },
+    { id: 5, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "18:00", local: "Levi's Stadium (San Francisco)" },
+    { id: 6, timeA: "A definir", timeB: "A definir", data: "2026-06-13", hora: "21:00", local: "BC Place (Vancouver)" },
+
+    // --- RODADA 2: CONSOLIDAÇÃO DOS GRUPOS ---
+    { id: 7, timeA: "A definir", timeB: "A definir", data: "2026-06-14", hora: "15:00", local: "Hard Rock Stadium (Miami)" },
+    { id: 8, timeA: "A definir", timeB: "A definir", data: "2026-06-14", hora: "19:00", local: "AT&T Stadium (Dallas)" },
+    { id: 9, timeA: "México", timeB: "A definir", data: "2026-06-18", hora: "20:00", local: "Estádio Guadalajara (Guadalajara)" },
+    { id: 10, timeA: "Canadá", timeB: "A definir", data: "2026-06-18", hora: "21:00", local: "BC Place (Vancouver)" },
+    { id: 11, timeA: "EUA", timeB: "A definir", data: "2026-06-19", hora: "22:00", local: "Lumen Field (Seattle)" },
+
+    // --- RODADA 3: DECISÃO DA FASE DE GRUPOS ---
+    { id: 12, timeA: "México", timeB: "A definir", data: "2026-06-24", hora: "18:00", local: "Estádio Azteca (Cidade do México)" },
+    { id: 13, timeA: "Canadá", timeB: "A definir", data: "2026-06-24", hora: "21:00", local: "BC Place (Vancouver)" },
+    { id: 14, timeA: "A definir", timeB: "A definir", data: "2026-06-25", hora: "16:00", local: "Lincoln Financial Field (Filadélfia)" },
+    { id: 15, timeA: "EUA", timeB: "A definir", data: "2026-06-25", hora: "22:00", local: "SoFi Stadium (Los Angeles)" },
+    { id: 16, timeA: "A definir", timeB: "A definir", data: "2026-06-26", hora: "20:00", local: "Mercedes-Benz Stadium (Atlanta)" },
+    { id: 17, timeA: "A definir", timeB: "A definir", data: "2026-06-27", hora: "19:00", local: "NRG Stadium (Houston)" }
 ];
 
 let enviado = localStorage.getItem('bolao_enviado') === 'true';
