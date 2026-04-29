@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão Copa 2026 - Pro Mode</title>
+    <style>
+        /* RESET E VARIÁVEIS */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --primary: #198754; --secondary: #ffc107; --accent: #0d6efd; --danger: #dc3545; --bg: #f0f2f5; }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); 
+            padding: 10px; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
+
+        /* --- ANIMAÇÕES DE COPA --- */
+        .copa-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.5; }
+        
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .confetti { 
+            position: absolute; 
+            width: 8px; 
+            height: 8px; 
+            animation: fall 4s linear infinite; 
+            border-radius: 2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dia, .ranking-item, .card-votos { animation: fadeIn 0.4s ease-out forwards; }
+
+        /* --- LAYOUT --- */
+        .container { width: 100%; max-width: 800px; margin: 0 auto; flex: 1; }
+        h1 { text-align: center; margin: 15px 0 5px; color: #1a3a1a; font-size: clamp(22px, 7vw, 32px); }
+        .subtitle { text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 14px; font-weight: bold; }
+
+        /* BOX USUÁRIO */
+        .user-box { 
+            background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary); 
+        }
+        input { 
+            width: 100%; padding: 14px; margin-top: 8px; border: 1px solid #ddd; 
+            border-radius: 8px; font-size: 16px; outline: none; appearance: none;
+            transition: border-color 0.3s;
+        }
+        input:focus { border-color: var(--primary); }
+
+        /* ADMIN SECTION */
+        .admin-section { background: #212529; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: none; }
+        .btn-admin { background: var(--secondary); border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+
+        /* JOGOS */
+        .dia { background: #fff; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        .dia-header { background: var(--primary); color: #fff; padding: 12px 16px; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; }
+        
+        .jogo { padding: 20px 16px; border-bottom: 1px solid #eee; position: relative; }
+        .jogo.bloqueado { background: #f9f9f9; opacity: 0.8; }
+        
+        .tag-status { position: absolute; top: 8px; right: 16px; font-size: 9px; font-weight: bold; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; }
+        .aberto { background: #e3f2fd; color: #0d6efd; }
+        .fechado { background: #ffebee; color: #dc3545; }
+
+        /* BOTÕES DE PALPITE */
+        .palpite { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+        .btn { 
+            padding: 15px 10px; border: 2px solid #eee; background: #fff; border-radius: 10px; 
+            cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn.active { background: var(--primary) !important; color: #fff !important; border-color: #1a3a1a !important; transform: scale(1.02); box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3); }
+        .btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+        .btn-reset { display: block; width: 100%; text-align: center; color: var(--danger); font-size: 12px; cursor: pointer; margin-top: 12px; border: none; background: none; text-decoration: underline; font-weight: bold; }
+        .resultado-oficial { background: #fff3cd; color: #856404; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center; font-weight: bold; font-size: 12px; border: 1px solid #ffeeba; }
+
+        /* RANKING E CARDS DE VOTOS */
+        .box-info { background: #fff; padding: 20px; border-radius: 12px; margin: 20px 0 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .ranking-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
+        .ranking-item { padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; transition: 0.3s; }
+        .ranking-item:hover { border-color: var(--primary); transform: translateX(5px); }
+        .pontos { background: var(--secondary); color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+
+        /* NOVOS CARDS DE PALPITES POR USUÁRIO */
+        .grid-votos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; margin-bottom: 100px; }
+        .card-votos { background: #fff; border-radius: 10px; padding: 15px; border-left: 5px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-votos h4 { font-size: 14px; margin-bottom: 10px; color: #444; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .item-voto { font-size: 12px; display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #f0f0f0; }
+        .voto-badge { font-weight: bold; color: var(--primary); }
+
+        /* ACOES FIXAS */
+        .acoes-fixas { 
+            position: sticky; bottom: 0; background: var(--bg); padding: 15px; 
+            display: flex; gap: 10px; z-index: 1000; border-top: 1px solid #ddd; 
+        }
+        .btn-acao { border: none; border-radius: 12px; font-weight: 700; cursor: pointer; flex: 1; height: 50px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn-acao:active { transform: translateY(2px); box-shadow: none; }
+        .btn-enviar { background: var(--primary); color: #fff; }
+        .btn-imprimir { background: var(--accent); color: #fff; }
+
+        @media (min-width: 600px) {
+            .palpite { grid-template-columns: 1fr 1fr 1fr; }
+        }
+        
+        @media print { 
+            .acoes-fixas, .user-box, .btn-reset, .copa-bg, .tag-status { display: none !important; } 
+            body { background: white; padding: 0; }
+            .dia { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="copa-bg" id="copa-anim"></div>
+
+<div class="container">
+    <h1>🏆 Bolão Copa 2026</h1>
+    <div class="subtitle">Rumo ao Hexa! ⚽🇧🇷</div>
+
+    <div class="user-box">
+        <label><strong>Seu Nome:</strong></label>
+        <input type="text" id="usuario" placeholder="Ex: Paulinho" oninput="checarAdmin()">
+    </div>
+
+    <div id="area-admin" class="admin-section">
+        <h3>🛠 Painel Admin</h3>
+        <select id="adm-jogo-id" style="width:100%; padding:10px; margin:5px 0; border-radius:8px;"></select>
+        <select id="adm-vencedor" style="width:100%; padding:10px; margin:5px 0; border-radius:8px;">
+            <option value="A">Time A venceu</option>
+            <option value="E">Empate</option>
+            <option value="B">Time B venceu</option>
+        </select>
+        <button class="btn-admin" onclick="salvarResultadoOficial()">Salvar Resultado Oficial</button>
+    </div>
+
+    <div id="jogos"></div>
+
+    <div class="box-info">
+        <h3>🥇 Ranking de Pontos</h3>
+        <div id="lista-usuarios" class="ranking-grid">Aguardando votos...</div>
+    </div>
+
+    <div class="box-info">
+        <h3>📋 Palpites da Galera</h3>
+        <div id="grid-votos-usuarios" class="grid-votos">Carregando palpites...</div>
+    </div>
+
+    <div class="acoes-fixas">
+        <button id="btnEnviar" class="btn-acao btn-enviar" onclick="enviarPalpites()">💾 SALVAR VOTOS</button>
+        <button class="btn-acao btn-imprimir" onclick="window.print()">📥 IMPRIMIR</button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getFirestore, collection, onSnapshot, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDhlW_35WxxH_PPDIAzn6NXhGYQbZX9-00",
+    authDomain: "bolaocopa-631b5.firebaseapp.com",
+    projectId: "bolaocopa-631b5",
+    storageBucket: "bolaocopa-631b5.firebasestorage.app",
+    messagingSenderId: "414087453168",
+    appId: "1:414087453168:web:26aae8628a51dd0bc4a535"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const JOGOS = [
+    { id: 1, grupo: "A", tA: "México", tB: "África do Sul", data: "2026-06-11", hora: "16:00" },
+    { id: 2, grupo: "A", tA: "Coréia do Sul", tB: "Rep. Tcheca", data: "2026-06-11", hora: "23:00" },
+    { id: 3, grupo: "B", tA: "Canadá", tB: "Bósnia", data: "2026-06-12", hora: "16:00" },
+    { id: 4, grupo: "D", tA: "EUA", tB: "Paraguai", data: "2026-06-12", hora: "22:00" },
+    { id: 5, grupo: "B", tA: "Catar", tB: "Suíça", data: "2026-06-13", hora: "16:00" },
+    { id: 6, grupo: "C", tA: "Brasil", tB: "Marrocos", data: "2026-06-13", hora: "19:00" },
+    { id: 7, grupo: "C", tA: "Haiti", tB: "Escócia", data: "2026-06-13", hora: "22:00" },
+    { id: 8, grupo: "D", tA: "Austrália", tB: "Turquia", data: "2026-06-14", hora: "01:00" },
+    { id: 9, grupo: "E", tA: "Alemanha", tB: "Curaçau", data: "2026-06-14", hora: "14:00" },
+    { id: 10, grupo: "F", tA: "Holanda", tB: "Japão", data: "2026-06-14", hora: "17:00" },
+    { id: 11, grupo: "E", tA: "Costa do Marfim", tB: "Equador", data: "2026-06-14", hora: "20:00" },
+    { id: 12, grupo: "F", tA: "Suécia", tB: "Tunísia", data: "2026-06-14", hora: "23:00" },
+    { id: 13, grupo: "H", tA: "Espanha", tB: "Cabo Verde", data: "2026-06-15", hora: "13:00" },
+    { id: 14, grupo: "G", tA: "Bélgica", tB: "Egito", data: "2026-06-15", hora: "16:00" },
+    { id: 15, grupo: "H", tA: "Arábia Saudita", tB: "Uruguai", data: "2026-06-15", hora: "19:00" },
+    { id: 16, grupo: "G", tA: "Irã", tB: "Nova Zelândia", data: "2026-06-15", hora: "22:00" },
+    { id: 17, grupo: "I", tA: "França", tB: "Senegal", data: "2026-06-16", hora: "16:00" },
+    { id: 18, grupo: "I", tA: "Iraque", tB: "Noruega", data: "2026-06-16", hora: "19:00" },
+    { id: 19, grupo: "J", tA: "Argentina", tB: "Argélia", data: "2026-06-16", hora: "22:00" },
+    { id: 20, grupo: "J", tA: "Áustria", tB: "Jordânia", data: "2026-06-17", hora: "01:00" },
+    { id: 21, grupo: "K", tA: "Portugal", tB: "RD Congo", data: "2026-06-17", hora: "14:00" },
+    { id: 22, grupo: "L", tA: "Inglaterra", tB: "Croácia", data: "2026-06-17", hora: "17:00" },
+    { id: 23, grupo: "L", tA: "Gana", tB: "Panamá", data: "2026-06-17", hora: "20:00" },
+    { id: 24, grupo: "K", tA: "Uzbequistão", tB: "Colômbia", data: "2026-06-17", hora: "21:00" }
+];
+
+let resultadosOficiais = {};
+
+// LOGICA DE ANIMAÇÃO DE CONFETES
+function criarConfetes() {
+    const animContainer = document.getElementById('copa-anim');
+    const coresConfete = ['#198754', '#ffc107', '#009739', '#ffffff'];
+    for(let i=0; i<30; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = coresConfete[Math.floor(Math.random() * coresConfete.length)];
+        c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        c.style.animationDelay = (Math.random() * 5) + 's';
+        animContainer.appendChild(c);
+    }
+}
+criarConfetes();
+
+const jogoComecou = (data, hora) => {
+    return new Date() >= new Date(`${data}T${hora}:00`);
+};
+
+window.checarAdmin = () => {
+    const nome = document.getElementById('usuario').value.trim().toLowerCase();
+    document.getElementById('area-admin').style.display = (nome === "paulinho") ? 'block' : 'none';
+};
+
+window.votarLocal = (id, esc) => {
+    const jogo = JOGOS.find(j => j.id === id);
+    if (jogoComecou(jogo.data, jogo.hora)) return alert("🔒 Este jogo já começou!");
+    
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    escolhas[id] = esc;
+    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
+    renderizar();
+};
+
+window.limparPalpite = (id) => {
+    const jogo = JOGOS.find(j => j.id === id);
+    if (jogoComecou(jogo.data, jogo.hora)) return;
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    delete escolhas[id];
+    localStorage.setItem('minhas_escolhas', JSON.stringify(escolhas));
+    renderizar();
+};
+
+window.enviarPalpites = async () => {
+    const nome = document.getElementById('usuario').value.trim();
+    if (!nome) return alert("Por favor, digite seu nome!");
+    
+    const escolhas = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    if (Object.keys(escolhas).length === 0) return alert("Marque algum palpite antes!");
+
+    try {
+        document.getElementById('btnEnviar').innerText = "⌛ SALVANDO...";
+        for (const [id, esc] of Object.entries(escolhas)) {
+            const jogo = JOGOS.find(j => j.id == id);
+            if(!jogoComecou(jogo.data, jogo.hora)) {
+                await setDoc(doc(db, "palpites", `${nome}_${id}`), {
+                    jogoId: parseInt(id),
+                    escolha: esc,
+                    usuario: nome,
+                    criadoEm: serverTimestamp()
+                });
+            }
+        }
+        alert("✅ Palpites salvos com sucesso!");
+    } catch (e) { alert("Erro ao salvar. Verifique a internet."); }
+    document.getElementById('btnEnviar').innerText = "💾 SALVAR VOTOS";
+};
+
+window.salvarResultadoOficial = async () => {
+    const id = document.getElementById('adm-jogo-id').value;
+    const res = document.getElementById('adm-vencedor').value;
+    try {
+        await setDoc(doc(db, "resultados", id), { resultado: res });
+        alert("Resultado atualizado!");
+    } catch(e) { alert("Erro de permissão."); }
+};
+
+window.renderizar = () => {
+    const container = document.getElementById('jogos');
+    const escolhasLocais = JSON.parse(localStorage.getItem('minhas_escolhas') || "{}");
+    const porDia = {};
+
+    JOGOS.forEach(j => {
+        if (!porDia[j.data]) porDia[j.data] = [];
+        porDia[j.data].push(j);
+    });
+
+    container.innerHTML = Object.keys(porDia).sort().map(data => `
+        <div class="dia">
+            <div class="dia-header">
+                <span>📅 ${new Date(data+'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit', month:'long'})}</span>
+            </div>
+            ${porDia[data].map(j => {
+                const bloqueado = jogoComecou(j.data, j.hora);
+                const sel = escolhasLocais[j.id];
+                const oficial = resultadosOficiais[j.id];
+                return `
+                <div class="jogo ${bloqueado ? 'bloqueado' : ''}">
+                    <span class="tag-status ${bloqueado ? 'fechado' : 'aberto'}">${bloqueado ? '🔒 Trancado' : '✏️ Aberto'}</span>
+                    <div style="font-size:11px; color:#888; margin-bottom:8px">🕒 ${j.hora} - Grupo ${j.grupo}</div>
+                    <div class="palpite">
+                        <button class="btn ${sel === 'A' ? 'active' : ''}" ${bloqueado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'A')">${j.tA}</button>
+                        <button class="btn ${sel === 'E' ? 'active' : ''}" ${bloqueado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'E')">Empate</button>
+                        <button class="btn ${sel === 'B' ? 'active' : ''}" ${bloqueado ? 'disabled' : ''} onclick="votarLocal(${j.id}, 'B')">${j.tB}</button>
+                    </div>
+                    ${!bloqueado && sel ? `<button class="btn-reset" onclick="limparPalpite(${j.id})">Limpar Palpite</button>` : ''}
+                    ${oficial ? `<div class="resultado-oficial">Resultado Real: ${oficial === 'E' ? 'Empate' : (oficial === 'A' ? j.tA : j.tB)}</div>` : ''}
+                </div>`;
+            }).join('')}
+        </div>
+    `).join('');
+
+    const admSelect = document.getElementById('adm-jogo-id');
+    if(admSelect && admSelect.options.length === 0) {
+        admSelect.innerHTML = JOGOS.map(j => `<option value="${j.id}">${j.tA} x ${j.tB}</option>`).join('');
+    }
+};
+
+// LISTENERS FIREBASE
+onSnapshot(collection(db, "resultados"), (snap) => {
+    snap.forEach(d => resultadosOficiais[d.id] = d.data().resultado);
+    renderizar();
+});
+
+onSnapshot(collection(db, "palpites"), (snap) => {
+    const ranking = {};
+    const palpitesPorJogo = {}; // Novo: Agrupar votos para os cards
+
+    snap.forEach(docSnap => {
+        const p = docSnap.data();
+        
+        // Lógica do Ranking
+        if(!ranking[p.usuario]) ranking[p.usuario] = 0;
+        if(resultadosOficiais[p.jogoId] && resultadosOficiais[p.jogoId] === p.escolha) {
+            ranking[p.usuario] += 3;
+        }
+
+        // Lógica dos Cards de Votos
+        if(!palpitesPorJogo[p.jogoId]) palpitesPorJogo[p.jogoId] = [];
+        palpitesPorJogo[p.jogoId].push(p);
+    });
+
+    // Renderizar Ranking
+    const rankingEl = document.getElementById('lista-usuarios');
+    rankingEl.innerHTML = Object.entries(ranking).sort((a,b) => b[1] - a[1]).map(([nome, pts]) => `
+        <div class="ranking-item">
+            <strong>👤 ${nome}</strong>
+            <span class="pontos">${pts} pts</span>
+        </div>`).join('') || "Aguardando votos...";
+
+    // Renderizar Cards de Palpites (Quem votou em quê)
+    const gridVotosEl = document.getElementById('grid-votos-usuarios');
+    gridVotosEl.innerHTML = JOGOS.map(j => {
+        const votosDesteJogo = palpitesPorJogo[j.id] || [];
+        if (votosDesteJogo.length === 0) return ''; // Não mostra card se não houver votos
+
+        return `
+            <div class="card-votos">
+                <h4>⚽ ${j.tA} x ${j.tB}</h4>
+                ${votosDesteJogo.map(v => {
+                    let escolhaTxt = v.escolha === 'A' ? j.tA : (v.escolha === 'B' ? j.tB : 'Empate');
+                    return `
+                        <div class="item-voto">
+                            <span>${v.usuario}</span>
+                            <span class="voto-badge">${escolhaTxt}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }).join('') || "Nenhum palpite registrado.";
+});
+
+renderizar();
+setInterval(renderizar, 60000); // Atualiza status dos jogos a cada minuto
+</script>
+</body>
+</html>
